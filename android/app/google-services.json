@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "974873514009",
+    "project_id": "kerawangshop",
+    "storage_bucket": "kerawangshop.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:974873514009:android:03281341f3f21740171a88",
+        "android_client_info": {
+          "package_name": "com.example.kerawangshop"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFX1oEiKOHNU4j4DdqDkAg2L3vKnrpQBE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
