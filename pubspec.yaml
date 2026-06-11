@@ -65,11 +65,8 @@ flutter:
   uses-material-design: true
 
   assets:
-<<<<<<< HEAD
     # - assets/images/splashscreen.png
-=======
     - assets/images/google.png
->>>>>>> 008f7a4c2a984f7f5175518963037ace1382e8f1
     - assets/Lottie/
     - assets/images/pfp1.jpg
 

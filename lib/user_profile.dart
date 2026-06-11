@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'setting.dart'; 
 
 // for pfp updates
 class UserProfilePage extends StatefulWidget {
@@ -132,10 +133,15 @@ class _UserProfilePageState extends State<UserProfilePage> {
                       offset: const Offset(0, -8),
                       child: Column(
                         children: [
-                          _buildMenuListTile(Icons.settings_outlined, 'Setting', primaryPurple),
-                          _buildMenuListTile(Icons.support_agent_outlined, 'Help Center', primaryPurple),
-                          _buildMenuListTile(Icons.quiz_outlined, 'FAQ', primaryPurple),
-                          _buildMenuListTile(Icons.email_outlined, 'Contact Us', primaryPurple),
+                          _buildMenuListTile(Icons.settings_outlined, 'Setting', primaryPurple, () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const SettingsPage()),
+                            );
+                          }),
+                          _buildMenuListTile(Icons.support_agent_outlined, 'Help Center', primaryPurple, () {}),
+                          _buildMenuListTile(Icons.quiz_outlined, 'FAQ', primaryPurple, () {}),
+                          _buildMenuListTile(Icons.email_outlined, 'Contact Us', primaryPurple, () {}),
                           const SizedBox(height: 10),
                           // Log Out
                           TextButton.icon(
@@ -259,7 +265,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
   }
 
   // menu list
-  Widget _buildMenuListTile(IconData icon, String title, Color purpleTheme) {
+  Widget _buildMenuListTile(IconData icon, String title, Color purpleTheme, VoidCallback onTap) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12), // space between each list
       decoration: BoxDecoration(
@@ -289,6 +295,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
           ),
         ),
         trailing: Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey[400]),
+        onTap: onTap,
       ),
     );
   }
