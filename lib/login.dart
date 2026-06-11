@@ -1,9 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import 'forgot.dart';
 import 'signup.dart';
+import 'Animation/FadeAnimation.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'home_screen.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -13,6 +15,17 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+
+  login()async{
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    
+    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.idToken,
+      idToken: googleAuth?.idToken,
+    );
+    await FirebaseAuth.instance.signInWithCredential(credential);
+  }
   bool isHiddenPassword = true;
 
   final TextEditingController email = TextEditingController();
@@ -35,6 +48,9 @@ class _LoginState extends State<Login> {
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
+
+      Get.offAll(() => const HomeScreen());
+
     } on FirebaseAuthException catch (e) {
       print(e.code);
       print(e.message);
@@ -80,25 +96,25 @@ class _LoginState extends State<Login> {
               padding: EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
+                children: <Widget> [
+                  FadeAnimation(1, Text(
                     "Login",
                     style: TextStyle(
                       fontSize: 40,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
-                  ),
+                  )),
                   SizedBox(height: 10),
-                  Text(
-                    "Welcome back! You have been missed!",
+                  FadeAnimation(1.3, Text(
+                    "Welcome back! Please login to your account.",
                     style: TextStyle(
                       fontSize: 18,
                       color: Colors.white,
                     ),
-                  ),
-                ],
-              ),
+                  )),
+                ]
+              )
             ),
 
             Expanded(
@@ -143,12 +159,12 @@ class _LoginState extends State<Login> {
                               decoration: const InputDecoration(
                                 hintText: "Email",
                                 border: InputBorder.none,
-                                contentPadding: const EdgeInsets.symmetric(vertical: 15),
+                                contentPadding: EdgeInsets.symmetric(vertical: 15),
                               ),
                             ),
                           ),
                         ),),
-                        const SizedBox(height: 20),
+                        SizedBox(height: 20),
                         // Password
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20,),
@@ -193,7 +209,7 @@ class _LoginState extends State<Login> {
                           ),
                         ),
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: 10),
                         Align(
                           alignment: Alignment.centerRight,
                           child: TextButton(
@@ -212,7 +228,7 @@ class _LoginState extends State<Login> {
                             ),
                           ),
                         ),),
-                        const SizedBox(height: 20),
+                        SizedBox(height: 20),
                         SizedBox(
                           width: 250,
                           height: 50,
@@ -256,6 +272,52 @@ class _LoginState extends State<Login> {
                             ),
                           ),
                         ),
+                      ),
+                      SizedBox(height: 20),
+                      Align(
+                          alignment: Alignment.center,
+                          child: TextButton(
+                          onPressed: () {
+                            Get.to(() => const Signup());
+                          },
+                          style: TextButton.styleFrom(
+                            foregroundColor: const Color(0xFF7C7C7C),
+                            padding: EdgeInsets.zero,
+                          ),
+                          child: const Text(
+                            "Or continue with",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      ElevatedButton(
+                        onPressed: (() => login()),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFE8E8E8),
+                          foregroundColor: const Color(0xFF4B4B4B),
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25),
+                            side: BorderSide(color: Colors.grey.shade300), // border color
+                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                              Image.asset(
+                                'assets/images/google.png',
+                                height: 24,
+                                width: 24,
+                              ),
+                              SizedBox(width: 10),
+                              Text("Continue with Google", style: TextStyle(fontSize: 16),),
+                            ],
+                          ),
                       ),
                       ],
                     ),
