@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'user_profile.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get.dart';
-import 'package:kerawangshop/splash_screen.dart';
+// import 'package:kerawangshop/splash_screen.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +17,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(),
+      home: UserProfilePage(),
     );
   }
 }
