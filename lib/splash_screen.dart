@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kerawangshop/login.dart';
 import 'package:lottie/lottie.dart';
-<<<<<<< HEAD
-// import 'home_screen.dart';
-=======
->>>>>>> 008f7a4c2a984f7f5175518963037ace1382e8f1
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
