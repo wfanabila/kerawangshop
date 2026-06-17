@@ -1,7 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:kerawangshop/login.dart';
+import 'package:kerawangshop/edit_profile.dart';
+import 'package:kerawangshop/sell_screen.dart';
+import 'home_content.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,70 +11,143 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  int currentTab = 0; // 0 = Home, 1 = Sell, 2 = Profile
 
-  final user=FirebaseAuth.instance.currentUser;
+  final List<Widget> screens = const [
+    HomeContent(),
+    SellScreen(),
+    EditProfilePage(),
+  ];
 
-  signout() async{
-    await FirebaseAuth.instance.signOut();
-    Get.offAll(() => const Login());
-  }
-  
+  static const Color barColor = Color(0xFF7B2FF7);
+  static const Color sellColor = Color(0xFFF2C14E);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 80,
-        backgroundColor: const Color(0xFFF7F5FF),
-        // Title becomes the search bar
-        title: Container(
-          height: 50,
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2),
-                child: Container(
-                  width: double.infinity,
-                  height: 45,
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFEDE8FF),
-                    borderRadius: BorderRadius.circular(50),
-                    border: Border.all(color: const Color(0xFF6C4FD4)),
+      body: IndexedStack(
+        index: currentTab,
+        children: screens,
+      ),
+      bottomNavigationBar: SizedBox(
+        height: 90,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            // Rounded purple bar
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                height: 90,
+                decoration: const BoxDecoration(
+                  color: barColor,
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(28),
                   ),
+                ),
+                child: SafeArea(
+                  top: false,
                   child: Row(
                     children: [
-                      Icon(Icons.search, color: const Color(0xFF6C4FD4)),
-                      const SizedBox(width: 10),
-                      const Text("Search...", style: TextStyle(color: Color(0xFF6C4FD4), fontSize: 16)),
-                    ]
-                  )
+                      Expanded(
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 18),
+                            child: _navItem(icon: Icons.home, label: 'Home', index: 0),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 80), // space for the circle
+                      Expanded(
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 18),
+                            child: _navItem(icon: Icons.person, label: 'Me', index: 2),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ]
-          ),
+            ),
+            // Floating circular "Sell" button
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      currentTab = 1;
+                    });
+                  },
+                  child: Container(
+                    width: 85,
+                    height: 85,
+                    decoration: const BoxDecoration(
+                      color: sellColor,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.attach_money,
+                          color: currentTab == 1 ? Colors.white : barColor,
+                          size: 28,
+                        ),
+                        Text(
+                          'Sell',
+                          style: TextStyle(
+                            color: currentTab == 1 ? Colors.white : barColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
-        // Cart and Profile icons on the right
-        actions: [
-          IconButton(
-            onPressed: () {
-            },
-            icon: const Icon(Icons.shopping_cart_outlined, color: Color(0xFF6C4FD4), size: 28,),
+      ),
+    );
+  }
+
+  Widget _navItem({
+    required IconData icon,
+    required String label,
+    required int index,
+  }) {
+    final isActive = currentTab == index;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          currentTab = index;
+        });
+      },
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            color: isActive ? sellColor : Colors.white,
           ),
-          IconButton(
-            onPressed: () {
-            
-            },
-            icon: const Icon(Icons.message_outlined, color: Color(0xFF6C4FD4), size: 28,),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              color: isActive ? sellColor : Colors.white,
+            ),
           ),
         ],
-      ),
-      body: Center(
-        child: Text("Welcome, ${user!.email}"),
-      ),
-
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => signout(),
-        child: const Icon(Icons.logout_rounded),
       ),
     );
   }

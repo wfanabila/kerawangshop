@@ -1,11 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:kerawangshop/home_screen.dart';
 import 'forgot.dart';
 import 'signup.dart';
 import 'Animation/FadeAnimation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'home_screen.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);

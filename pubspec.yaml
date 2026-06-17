@@ -45,6 +45,8 @@ dependencies:
   local_auth: ^2.3.0
   google_sign_in: ^6.2.1
   simple_animations: ^5.2.0
+  cloud_firestore: ^6.5.0
+  curved_navigation_bar: ^1.0.6
 
 dev_dependencies:
   flutter_test:
@@ -67,6 +69,18 @@ flutter:
   assets:
     # - assets/images/splashscreen.png
     - assets/images/google.png
+    - assets/images/spaghetti.png
+    - assets/images/popia.png
+    - assets/images/mineral.png
+    - assets/images/burntcheesecake.png
+    - assets/images/dubaicookie.png
+    - assets/images/shoes.png
+    - assets/images/sweatshirt.png
+    - assets/images/cplusplus.png
+    - assets/images/earphone.png
+    - assets/images/heels.png
+    - assets/images/mouse.png
+    - assets/images/precalc.png
     - assets/Lottie/
     - assets/images/pfp1.jpg
 
