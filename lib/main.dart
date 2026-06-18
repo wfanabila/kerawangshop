@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kerawangshop/home_screen.dart';
+import 'package:kerawangshop/sold_items_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get.dart';
 // import 'package:kerawangshop/splash_screen.dart';
@@ -15,9 +16,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const GetMaterialApp(
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      home: HomeScreen(),
+      home: const SoldItemsPage(),
     );
   }
 }

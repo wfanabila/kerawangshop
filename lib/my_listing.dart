@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'sell_screen.dart';
 
 class MyListingPage extends StatelessWidget {
   const MyListingPage({super.key});
@@ -94,7 +95,14 @@ class MyListingPage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(20),
                           ),
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const SellScreen(),
+                            ),
+                          );
+                        },
                         child: const Text("List an item"),
                       ),
 
