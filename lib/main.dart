@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kerawangshop/home_screen.dart';
+import 'package:kerawangshop/user_profile.dart';
 import 'package:kerawangshop/sold_items_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get.dart';
@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const SoldItemsPage(),
+      home: const UserProfilePage(),
     );
   }
 }

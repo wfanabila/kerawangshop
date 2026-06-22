@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:kerawangshop/faq.dart';
 import 'setting.dart'; 
+import 'my_purchases.dart'; 
+
 
 // for pfp updates
 class UserProfilePage extends StatefulWidget {
@@ -134,7 +136,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
                           Icons.hourglass_bottom,
                           'My Purchases',
                           primaryPurple,
-                          () {},
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const MyPurchasesPage()),
+                            );
+                          },
                         ),
                         
                         ],

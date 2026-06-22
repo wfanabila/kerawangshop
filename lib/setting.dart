@@ -30,7 +30,7 @@ class _SettingsPageState extends State<SettingsPage> {
           },
         ),
         title: const Text(
-          'Rate',
+          'Setting',
           style: TextStyle(
             color: Color(0xFF2D2D2D),
             fontSize: 28,

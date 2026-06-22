@@ -83,8 +83,11 @@ flutter:
     - assets/images/heels.png
     - assets/images/mouse.png
     - assets/images/precalc.png
+    - assets/images/egg.png
+    - assets/images/ramen.png
     - assets/Lottie/
     - assets/images/pfp1.jpg
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
