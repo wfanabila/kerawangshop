@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:kerawangshop/faq.dart';
 import 'setting.dart'; 
-import 'my_purchases.dart'; 
-
+import 'my_purchases.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:get/get.dart';
+import 'login.dart';
 
 // for pfp updates
 class UserProfilePage extends StatefulWidget {
@@ -15,6 +18,8 @@ class UserProfilePage extends StatefulWidget {
 class _UserProfilePageState extends State<UserProfilePage> {
   String pfpPath = 'assets/images/pfp1.jpg';
 
+  final User? currentUser = FirebaseAuth.instance.currentUser;
+
   // function whenever want to update the pfp
   void updateProfileImage(String newPath) {
     setState(() {
@@ -24,22 +29,21 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    const Color primaryPurple = Color(0xFF7B2CBF);
+    const Color primaryPurple = Color(0xFF7B2FF7);
 
     return Scaffold(
       backgroundColor: primaryPurple,
       body: SingleChildScrollView(
         child: Stack(
           children: [
-
             // header
             Container(
-              height: 300,
               width: double.infinity,
               color: primaryPurple,
               child: SafeArea(
                 bottom: false,
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
@@ -54,7 +58,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
                             ),
                           ),
                           Row(
-
                             // right side header (cart)
                             children: [
                               IconButton(
@@ -66,8 +69,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 8),
-
                     // Profile avatar
                     Container(
                       decoration: BoxDecoration(
@@ -81,8 +82,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    const Text(
-                      'Leehan',
+                    Text(
+                      currentUser?.displayName ?? 'User',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 26,
@@ -92,7 +93,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'leehan04@gmail.com',
+                      currentUser?.email ?? 'No Email Provided',
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.85),
                         fontSize: 14,
@@ -169,7 +170,26 @@ class _UserProfilePageState extends State<UserProfilePage> {
                           const SizedBox(height: 10),
                           // Log Out
                           TextButton.icon(
-                            onPressed: () {},
+                            onPressed: () async {
+                              try {
+                                await FirebaseAuth.instance.signOut();
+                                await GoogleSignIn().signOut();
+                                Get.snackbar(
+                                  "Logged Out",
+                                  "Successfully logged out of your account",
+                                  backgroundColor: Colors.amber,
+                                  colorText: Colors.black,
+                                );
+                                Get.offAll(() => const Login());   
+                              } catch (e) {
+                                Get.snackbar(
+                                  "Error",
+                                  "Failed to log out. Try again.",
+                                  backgroundColor: Colors.red,
+                                  colorText: Colors.white,
+                                );
+                              }
+                            },
                             icon: Icon(Icons.logout, color: Colors.grey[500], size: 20),
                             label: Text(
                               'Log Out',
@@ -189,65 +209,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
               ),
             ),
           ],
-        ),
-      ),
-
-      // nav bar
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: primaryPurple,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(35),
-            topRight: Radius.circular(35),
-          ),
-        ),
-        child: SafeArea(
-          top: false,
-          child: Container(
-            height: 70,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildBottomNavItem(Icons.home_outlined, 'Home', false),
-                _buildBottomNavItem(Icons.chat_bubble_outline, 'Chat', false),
-                
-                // adjustt sell button float
-                Transform.translate(
-                  offset: const Offset(0, -15),
-                  child: Container(
-                    height: 70,
-                    width: 70,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFFFD166),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4))
-                      ],
-                    ),
-                    
-                    // sell button
-                    child: const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.attach_money_rounded, color: primaryPurple, size: 30),
-                        Text(
-                          'Sell',
-                          style: TextStyle(
-                            color: primaryPurple,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                _buildBottomNavItem(Icons.notifications_none_rounded, 'Notifications', false),
-                _buildBottomNavItem(Icons.person_rounded, 'Me', true),
-              ],
-            ),
-          ),
         ),
       ),
     );
@@ -324,35 +285,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
         ),
         trailing: Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey[400]),
         onTap: onTap,
-      ),
-    );
-  }
-
-  // nav bar
-  Widget _buildBottomNavItem(IconData icon, String label, bool isActive) {
-    return Expanded(
-      child: Opacity(
-        opacity: isActive ? 1.0 : 0.65,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () {},
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, color: Colors.white, size: 30),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

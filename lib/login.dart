@@ -16,15 +16,48 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
 
-  login()async{
-    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-    
-    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth?.idToken,
-      idToken: googleAuth?.idToken,
-    );
-    await FirebaseAuth.instance.signInWithCredential(credential);
+  login() async {
+    try {
+      print("Starting Google Sign In...");
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      
+      if (googleUser == null) {
+        print("User cancelled Google Sign In");
+        return; // User backed out of the picker
+      }
+      
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken, // Fixed typo here (was idToken)
+        idToken: googleAuth.idToken,
+      );
+      
+      print("Signing into Firebase with Google credentials...");
+      await FirebaseAuth.instance.signInWithCredential(credential);
+      
+      print("Google Login successful");
+      Get.snackbar(
+        "Success",
+        "Logged in with Google successfully",
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+
+      // Navigate to your home screen
+      Get.offAll(() => const HomeScreen());
+
+    } catch (e) {
+      print("GOOGLE LOGIN ERROR DETECTED:");
+      print(e); // This will now print the EXACT reason it is failing in your debug console
+      
+      Get.snackbar(
+        "Google Login Failed",
+        e.toString(),
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
   }
   bool isHiddenPassword = true;
 
@@ -209,7 +242,6 @@ class _LoginState extends State<Login> {
                           ),
                         ),
                         ),
-                        SizedBox(height: 10),
                         Align(
                           alignment: Alignment.centerRight,
                           child: TextButton(
@@ -228,7 +260,6 @@ class _LoginState extends State<Login> {
                             ),
                           ),
                         ),),
-                        SizedBox(height: 20),
                         SizedBox(
                           width: 250,
                           height: 50,
@@ -273,7 +304,6 @@ class _LoginState extends State<Login> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 20),
                       Align(
                           alignment: Alignment.center,
                           child: TextButton(
@@ -293,7 +323,6 @@ class _LoginState extends State<Login> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 10),
                       ElevatedButton(
                         onPressed: (() => login()),
                         style: ElevatedButton.styleFrom(

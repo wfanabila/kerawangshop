@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kerawangshop/edit_profile.dart';
-import 'products_provider.dart'; // Import your new provider
+import 'products_provider.dart';
+import 'product_detail_screen.dart';
+import 'cart_screen.dart';
 
 class HomeContent extends ConsumerStatefulWidget {
   const HomeContent({super.key});
@@ -16,9 +17,7 @@ class _HomeContentState extends ConsumerState<HomeContent> {
 
   @override
   Widget build(BuildContext context) {
-    // Watch the Firestore stream provider
     final productsAsync = ref.watch(productsStreamProvider);
-
     return Scaffold(
       body: Container(
         color: const Color(0xFFF7F5FF),
@@ -26,22 +25,19 @@ class _HomeContentState extends ConsumerState<HomeContent> {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              // --- SEARCH BAR ROW ---
+              SizedBox(height: 60),
               Row(
                 children: [
                   Expanded(
                     child: TextField(
-                      onChanged: (value) {
-                        setState(() {
-                          searchQuery = value;
-                        });
-                      },
+                      onChanged: (value) {setState(() {searchQuery = value;});},
                       decoration: InputDecoration(
                         hintText: "Search products...",
                         prefixIcon: const Icon(Icons.search),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Colors.grey, width: 1.5),
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: const BorderSide(color: Color(0xFF7B2FF7), width: 1.5),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -51,16 +47,13 @@ class _HomeContentState extends ConsumerState<HomeContent> {
                     ),
                   ),
                   const SizedBox(width: 10),
-                  IconButton(
-                    icon: const Icon(Icons.shopping_cart, color: Color(0xFF7B2FF7)),
-                    iconSize: 28,
-                    onPressed: () {},
-                  ),
+                  IconButton(icon: const Icon(Icons.shopping_cart_outlined, color: Color(0xFF7B2FF7)),iconSize: 28,onPressed: () {Navigator.push(
+                  context,
+                        MaterialPageRoute(builder: (context) => const CartScreen()),
+                      );},),
                 ],
               ),
               const SizedBox(height: 20),
-
-              // --- CATEGORY FILTERS ---
               SizedBox(
                 height: 50,
                 child: ListView(
@@ -71,17 +64,13 @@ class _HomeContentState extends ConsumerState<HomeContent> {
                     categoryChip("Food & Drinks"),
                     categoryChip("Beauty & Health"),
                     categoryChip("Electronics"),
+                    categoryChip("Others"),
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
-
-              // --- GRID LIST DRIVEN BY RIVERPOD & FIRESTORE ---
               Expanded(
                 child: productsAsync.when(
-                  // 1. Data arrived successfully
                   data: (allProducts) {
-                    // Filter the products list dynamically based on search & category
                     final filteredProducts = allProducts.where((product) {
                       final matchesCategory = selectedCategory == "All" || 
                           (product['category'] ?? '').toLowerCase() == selectedCategory.toLowerCase();
@@ -99,7 +88,7 @@ class _HomeContentState extends ConsumerState<HomeContent> {
                         crossAxisCount: 2,
                         mainAxisSpacing: 12,
                         crossAxisSpacing: 12,
-                        childAspectRatio: 0.7,
+                        childAspectRatio: 0.85, 
                       ),
                       itemBuilder: (context, index) {
                         final product = filteredProducts[index];
@@ -108,63 +97,56 @@ class _HomeContentState extends ConsumerState<HomeContent> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: ClipRRect(
-                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                                  child: Image.asset(
-                                    product['image'] ?? 'assets/images/google.png', 
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ProductDetailScreen(product: product),
+                                ),
+                              );
+                            },
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: ClipRRect(
+                                    borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                                    child: Image.asset(
+                                      product['image'] ?? 'assets/images/google.png', 
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      product['name'] ?? '',
-                                      style: const TextStyle(fontWeight: FontWeight.bold),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      product['price'] ?? '',
-                                      style: const TextStyle(color: Colors.green),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 5),
-                                child: Center(
-                                  child: ElevatedButton(
-                                    onPressed: EditProfilePage.new,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF751BF1),
-                                      foregroundColor: Colors.white,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(50),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        product['name'] ?? '',
+                                        style: const TextStyle(fontWeight: FontWeight.bold),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                    ),
-                                    child: const Text("Buy Now", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        product['price'] ?? '',
+                                        style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         );
                       },
                     );
                   },
-                  // 2. Loading state handler
                   loading: () => const Center(child: CircularProgressIndicator()),
-                  // 3. Error state handler
                   error: (err, stack) => Center(child: Text("Error: $err")),
                 ),
               ),
@@ -187,6 +169,21 @@ class _HomeContentState extends ConsumerState<HomeContent> {
             selectedCategory = (selectedCategory == title) ? "All" : title;
           });
         },
+
+        labelStyle: TextStyle(
+          color: isSelected ? Colors.white : Colors.black87,
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+        ),
+        selectedColor: const Color(0xFF7B2FF7),
+        backgroundColor: Color(0xFFEDE8FF),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(
+            color: isSelected ? const Color(0xFF7B2FF7) : const Color(0xFF7B2FF7),
+            width: 1.0,
+          ),
+        ),
+        showCheckmark: false,
       ),
     );
   }

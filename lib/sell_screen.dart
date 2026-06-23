@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart'; // <--- ADD THIS LINE
 import 'dart:io';
-import 'package:image_picker/image_picker.dart';
+import 'home_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SellScreen extends StatefulWidget {
   const SellScreen({super.key});
@@ -12,45 +15,46 @@ class SellScreen extends StatefulWidget {
 class _SellScreenState extends State<SellScreen> {
   String? selectedCategory = "Food & Drinks";
   String? selectedCondition = "New";
-
-  String? selectedImage;
-
+  
+  // State variable to store the picked single image
+  File? _pickedImage; 
   final ImagePicker _picker = ImagePicker();
 
-  List<File?> images = List.generate(8, (index) => null);
+  // Text editing controllers to hold the user inputs
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController priceController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
 
   final List<String> categories = [
-    "Food & Drinks",
-    "Stationery",
-    "Books",
-    "Electronics",
+    "Stationary",
     "Fashion",
-    "Beauty",
-    "Sports",
-    "Accessories",
-    "Services",
+    "Food & Drinks",
+    "Electronics",
+    "Beauty & Health",
     "Others",
   ];
 
-  final List<String> conditions = ["New", "Like New", "Good", "Fair", "Used"];
-  Future<void> pickImage(int index) async {
-    final XFile? pickedFile = await _picker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 80,
-    );
+  final List<String> conditions = ["New", "Used"];
 
-    if (pickedFile != null) {
+  // Helper method to open the device gallery and select an image
+  Future<void> _pickImageFromGallery() async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
       setState(() {
-        images[index] = File(pickedFile.path);
+        _pickedImage = File(image.path);
       });
     }
   }
 
-  void chooseImage() {
-    setState(() {
-      selectedImage = "assets/images/popia.png";
-    });
+  @override
+  void dispose() {
+    nameController.dispose();
+    priceController.dispose();
+    descriptionController.dispose();
+    super.dispose();
   }
+
+  
 
   @override
   Widget build(BuildContext context) {
@@ -67,112 +71,70 @@ class _SellScreenState extends State<SellScreen> {
                 children: [
                   IconButton(
                     onPressed: () {
-                      Navigator.pop(context);
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => const HomeScreen()), // Replace with your home class name
+                        (route) => false, // This clears the navigation history so they can't "pop" back into the edit screen
+                      );
                     },
                     icon: const Icon(Icons.arrow_back),
                   ),
                   const SizedBox(width: 10),
                   const Text(
-                    "Edit Listing",
+                    "Add Item",
                     style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
-
               const SizedBox(height: 20),
 
-              // Photos
-              const Text(
-                "Photos",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.deepPurple,
-                ),
-              ),
-
-              const Text(
-                "Add up to 8 photos in JPEG or PNG format.",
-                style: TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-
-              const SizedBox(height: 15),
-
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  GestureDetector(
-                    onTap: () => pickImage(0),
-                    child: Container(
-                      width: 95,
-                      height: 95,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.deepPurple),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child:
-                          images[0] != null
-                              ? ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: Image.file(
-                                  images[0]!,
-                                  fit: BoxFit.cover,
-                                ),
-                              )
-                              : const Icon(
-                                Icons.add,
-                                color: Colors.deepPurple,
-                                size: 35,
-                              ),
-                    ),
+              // --- SINGLE IMAGE PICKER ROW ---
+              const Text("Product Photo", style: TextStyle(color: Colors.deepPurple, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              GestureDetector(
+                onTap: _pickImageFromGallery,
+                child: Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: Colors.deepPurple, width: 1.5),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  _photoBox("Front"),
-                  _photoBox("Back"),
-                  _photoBox("Side"),
-                  _photoBox("Label"),
-                  _photoBox("Detail"),
-                  _photoBox("Flaw"),
-                ],
-              ),
-
-              const SizedBox(height: 25),
-
-              // Item Name
-              const Text(
-                "Item Name",
-                style: TextStyle(
-                  color: Colors.deepPurple,
-                  fontWeight: FontWeight.bold,
+                  child: _pickedImage != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.file(_pickedImage!, fit: BoxFit.cover),
+                        )
+                      : const Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.add_a_photo, color: Colors.deepPurple, size: 30),
+                            SizedBox(height: 4),
+                            Text("Add Photo", style: TextStyle(fontSize: 12, color: Colors.deepPurple)),
+                          ],
+                        ),
                 ),
               ),
+              const SizedBox(height: 20),
 
+              // Item Name Field
+              const Text("Item Name", style: TextStyle(color: Colors.deepPurple, fontWeight: FontWeight.bold)),
               const SizedBox(height: 5),
-
-              const TextField(
-                decoration: InputDecoration(
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(
                   filled: true,
                   fillColor: Colors.white,
                   hintText: "Popia Carbonara",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
                 ),
               ),
-
               const SizedBox(height: 15),
 
-              // CATEGORY
-              const Text(
-                "Category",
-                style: TextStyle(
-                  color: Colors.deepPurple,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
+              // Category Field
+              const Text("Category", style: TextStyle(color: Colors.deepPurple, fontWeight: FontWeight.bold)),
               const SizedBox(height: 5),
-
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
@@ -184,35 +146,16 @@ class _SellScreenState extends State<SellScreen> {
                   child: DropdownButton<String>(
                     value: selectedCategory,
                     isExpanded: true,
-                    items:
-                        categories.map((String category) {
-                          return DropdownMenuItem(
-                            value: category,
-                            child: Text(category),
-                          );
-                        }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedCategory = value;
-                      });
-                    },
+                    items: categories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                    onChanged: (value) => setState(() => selectedCategory = value),
                   ),
                 ),
               ),
-
               const SizedBox(height: 15),
 
-              // CONDITION
-              const Text(
-                "Condition",
-                style: TextStyle(
-                  color: Colors.deepPurple,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
+              // Condition Field
+              const Text("Condition", style: TextStyle(color: Colors.deepPurple, fontWeight: FontWeight.bold)),
               const SizedBox(height: 5),
-
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
@@ -224,162 +167,95 @@ class _SellScreenState extends State<SellScreen> {
                   child: DropdownButton<String>(
                     value: selectedCondition,
                     isExpanded: true,
-                    items:
-                        conditions.map((String condition) {
-                          return DropdownMenuItem(
-                            value: condition,
-                            child: Text(condition),
-                          );
-                        }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedCondition = value;
-                      });
-                    },
+                    items: conditions.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                    onChanged: (value) => setState(() => selectedCondition = value),
                   ),
                 ),
               ),
-
               const SizedBox(height: 15),
 
-              // Price
-              const Text(
-                "Item Price (RM)",
-                style: TextStyle(
-                  color: Colors.deepPurple,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
+              // Price Field
+              const Text("Item Price (RM)", style: TextStyle(color: Colors.deepPurple, fontWeight: FontWeight.bold)),
               const SizedBox(height: 5),
-
-              const TextField(
+              TextField(
+                controller: priceController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   filled: true,
                   fillColor: Colors.white,
                   hintText: "5.00",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
                 ),
               ),
-
               const SizedBox(height: 15),
-
-              // Location
-              const Text(
-                "Location",
-                style: TextStyle(
-                  color: Colors.deepPurple,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
+              // Description Field
+              const Text("Description", style: TextStyle(color: Colors.deepPurple, fontWeight: FontWeight.bold)),
               const SizedBox(height: 5),
-
-              const TextField(
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  hintText: "UiTM Kuala Terengganu",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 15),
-
-              // Description
-              const Text(
-                "Description",
-                style: TextStyle(
-                  color: Colors.deepPurple,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              const SizedBox(height: 5),
-
-              const TextField(
+              TextField(
+                controller: descriptionController,
                 maxLines: 4,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   filled: true,
                   fillColor: Colors.white,
-                  hintText:
-                      "Popia carbonara homemade. Sedap, harga student-friendly. Kenyang, jimat, puas hati!",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
+                  hintText: "Popia carbonara homemade...",
+                  border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
                 ),
               ),
-
               const SizedBox(height: 25),
 
+              // Save Changes Button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    print("Save button clicked");
+                  onPressed: () async {
+                    if (nameController.text.isEmpty || priceController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Item Name and Price are required!")),
+                      );
+                      return;
+                    }
 
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Listing updated successfully!"),
-                      ),
+                      const SnackBar(content: Text("Uploading listing...")),
                     );
+
+                    try {
+                      // Pass inputs along with image data (if selected)
+                      await addProductToFirestore(
+                        name: nameController.text.trim(),
+                        category: selectedCategory ?? "Others",
+                        condition: selectedCondition ?? "New",
+                        price: priceController.text.trim(),
+                        description: descriptionController.text.trim(),
+                        imageFile: _pickedImage,
+                      );
+
+                      // Clear fields and selected image upon success
+                      nameController.clear();
+                      priceController.clear();
+                      descriptionController.clear();
+                      setState(() {
+                        _pickedImage = null;
+                      });
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Listing published successfully!")),
+                      );
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Error listing product: $e")),
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.deepPurple,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 15),
                   ),
-                  child: const Text("Save Changes"),
+                  child: const Text("Publish Listing"),
                 ),
               ),
-
-              const SizedBox(height: 10),
-
-              Center(
-                child: TextButton(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder:
-                          (context) => AlertDialog(
-                            title: const Text("Delete Listing"),
-                            content: const Text(
-                              "Are you sure you want to delete this listing?",
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: const Text("Cancel"),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text("Listing deleted"),
-                                    ),
-                                  );
-                                },
-                                child: const Text("Delete"),
-                              ),
-                            ],
-                          ),
-                    );
-                  },
-                  child: const Text(
-                    "Delete Listing",
-                    style: TextStyle(color: Colors.red),
-                  ),
-                ),
-              ),
+              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -387,21 +263,27 @@ class _SellScreenState extends State<SellScreen> {
     );
   }
 
-  static Widget _photoBox(String text) {
-    return Container(
-      width: 85,
-      height: 85,
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade400),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Center(
-        child: Text(
-          text,
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 11),
-        ),
-      ),
-    );
-  }
+  // Local helper method to handle writing data directly to Firestore
+  Future<void> addProductToFirestore({
+  required String name,
+  required String category,
+  required String condition,
+  required String price,
+  required String description,
+  File? imageFile,
+}) async {
+  // Grab the current user's ID safely
+  final String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
+
+  await FirebaseFirestore.instance.collection('products').add({
+    'name': name,
+    'category': category,
+    'condition': condition,
+    'price': 'RM $price',
+    'description': description,
+    'image': 'assets/images/google.png', 
+    'createdAt': FieldValue.serverTimestamp(),
+    'sellerId': currentUserId, // <--- Saves who uploaded it, but doesn't restrict home screen visibility!
+  });
+}
 }

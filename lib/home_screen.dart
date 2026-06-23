@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:kerawangshop/edit_profile.dart';
+import 'package:kerawangshop/user_profile.dart';
 import 'package:kerawangshop/sell_screen.dart';
 import 'home_content.dart';
+import 'item_model.dart';
+import 'cart_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,19 +13,35 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int currentTab = 0; // 0 = Home, 1 = Sell, 2 = Profile
+  int currentTab = 0;
 
   final List<Widget> screens = const [
     HomeContent(),
     SellScreen(),
-    EditProfilePage(),
+    UserProfilePage(),
   ];
 
   static const Color barColor = Color(0xFF7B2FF7);
   static const Color sellColor = Color(0xFFF2C14E);
 
+  List<ShopItem> uploadedItems = [];
+
+  void addItemToList(ShopItem newItem) {
+    setState(() {
+      uploadedItems.add(newItem);
+      currentTab = 0;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+
+    final List<Widget> screens = [
+      HomeContent(),
+      SellScreen(),
+      UserProfilePage(),
+    ];
+
     return Scaffold(
       body: IndexedStack(
         index: currentTab,
@@ -40,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
               right: 0,
               bottom: 0,
               child: Container(
-                height: 90,
+                height: 65,
                 decoration: const BoxDecoration(
                   color: barColor,
                   borderRadius: BorderRadius.vertical(
@@ -50,24 +68,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: SafeArea(
                   top: false,
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Expanded(
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 18),
-                            child: _navItem(icon: Icons.home, label: 'Home', index: 0),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 80), // space for the circle
-                      Expanded(
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 18),
-                            child: _navItem(icon: Icons.person, label: 'Me', index: 2),
-                          ),
-                        ),
-                      ),
+                      _navItem(icon: Icons.home, label: 'Home', index: 0),
+                      const SizedBox(width: 60), // spacing alignment buffer around floating center anchor
+                      _navItem(icon: Icons.person, label: 'Me', index: 2),
                     ],
                   ),
                 ),
@@ -86,8 +91,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     });
                   },
                   child: Container(
-                    width: 85,
-                    height: 85,
+                    width: 75,
+                    height: 75,
                     decoration: const BoxDecoration(
                       color: sellColor,
                       shape: BoxShape.circle,

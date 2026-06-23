@@ -107,38 +107,6 @@ class _SignupState extends State<Signup> {
                     child: Column(
                       children: [
                         const SizedBox(height: 60),
-
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20,),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Color(0xFFEDE8FF),
-                              border: Border.all(color: const Color(0xFF751BF1)),
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: const [
-                                BoxShadow(
-                                color: Color.fromRGBO(93, 93, 93, 0.251),
-                                blurRadius: 20,
-                                offset: Offset(0, 8),
-                              ),
-                            ],
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                            ),
-                            child: TextField(
-                              controller: email,
-                              decoration: const InputDecoration(
-                                hintText: "Name",
-                                border: InputBorder.none,
-                                contentPadding: const EdgeInsets.symmetric(vertical: 15),
-                              ),
-                            ),
-                          ),
-                        ),),
-                        const SizedBox(height: 20),
-
                         // Email
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20,),
@@ -251,7 +219,7 @@ class _SignupState extends State<Signup> {
                             padding: EdgeInsets.zero,
                           ),
                           child: const Text(
-                            "Already have an account?",
+                            "Already have an account? Sign In",
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w400,
