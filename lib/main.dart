@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kerawangshop/home_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get.dart';
 // import 'package:kerawangshop/splash_screen.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  runApp(const MyApp());
+  await Firebase.initializeApp(); // Initialize Firebase
+  runApp(
+    const ProviderScope( // Crucial for Riverpod to work
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -21,3 +26,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
