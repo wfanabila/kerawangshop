@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:kerawangshop/faq.dart';
 import 'setting.dart'; 
+import 'my_purchases.dart'; 
+
 
 // for pfp updates
 class UserProfilePage extends StatefulWidget {
@@ -111,7 +114,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 ),
               ),
 
-              // items liked, my purchases, rate
+              // items liked, my purchases
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25.0),
                 child: Column(
@@ -119,11 +122,28 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     Transform.translate(
                       offset: const Offset(0, -35),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          _buildQuickActionButton(Icons.favorite, 'Items Liked', primaryPurple),
-                          _buildQuickActionButton(Icons.hourglass_bottom, 'My Purchases', primaryPurple),
-                          _buildQuickActionButton(Icons.reviews, 'Rate', primaryPurple),
+                          _buildQuickActionButton(
+                          Icons.favorite,
+                          'Items Liked',
+                          primaryPurple,
+                          () {},
+                        ),
+                        const SizedBox(width: 10),
+                        _buildQuickActionButton(
+                          Icons.hourglass_bottom,
+                          'My Purchases',
+                          primaryPurple,
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const MyPurchasesPage()),
+                            );
+                          },
+                        ),
+                        
                         ],
                       ),
                     ),
@@ -139,8 +159,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
                               MaterialPageRoute(builder: (context) => const SettingsPage()),
                             );
                           }),
-                          _buildMenuListTile(Icons.support_agent_outlined, 'Help Center', primaryPurple, () {}),
-                          _buildMenuListTile(Icons.quiz_outlined, 'FAQ', primaryPurple, () {}),
+                          _buildMenuListTile(Icons.quiz_outlined, 'FAQ', primaryPurple, () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const FAQPage()),
+                            );
+                          }),
                           _buildMenuListTile(Icons.email_outlined, 'Contact Us', primaryPurple, () {}),
                           const SizedBox(height: 10),
                           // Log Out
@@ -229,37 +253,41 @@ class _UserProfilePageState extends State<UserProfilePage> {
     );
   }
 
-  // items liked, my purchases, rate
-  Widget _buildQuickActionButton(IconData icon, String label, Color iconColor) {
-    return Container(
-      width: 115,
-      height: 80,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 14,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: iconColor, size: 38),
-          const SizedBox(height: 6),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
+  // items liked, my purchases
+  Widget _buildQuickActionButton(IconData icon, String label, Color iconColor, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20), // Keeps the ripple effect matching the container shape
+      child: Container(
+        width: 115,
+        height: 80,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 14,
+              offset: const Offset(0, 6),
             ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: iconColor, size: 38),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'edit_profile.dart';
+import 'package:kerawangshop/faq.dart';
+
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -24,11 +26,11 @@ class _SettingsPageState extends State<SettingsPage> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: primaryPurple, size: 26),
           onPressed: () {
-            Navigator.pop(context); // back
+            Navigator.pop(context);
           },
         ),
         title: const Text(
-          'Settings',
+          'Setting',
           style: TextStyle(
             color: Color(0xFF2D2D2D),
             fontSize: 28,
@@ -101,8 +103,12 @@ class _SettingsPageState extends State<SettingsPage> {
               // help & support
               _buildSectionHeader('Help and Support'),
               const SizedBox(height: 10),
-              _buildSettingsTile(Icons.support_agent_outlined, 'Help Center', primaryPurple, onTap: () {}),
-              _buildSettingsTile(Icons.quiz_outlined, 'FAQ', primaryPurple, onTap: () {}),
+              _buildSettingsTile(Icons.quiz_outlined, 'FAQ', primaryPurple, onTap: () {
+                Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const FAQPage()),
+                            );
+              }),
               _buildSettingsTile(Icons.email_outlined, 'Contact Us', primaryPurple, onTap: () {}),
 
               const SizedBox(height: 25),

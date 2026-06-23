@@ -3,7 +3,15 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+<<<<<<< HEAD
   cloud_firestore
+=======
+<<<<<<< Updated upstream
+  cloud_firestore
+  file_selector_windows
+=======
+>>>>>>> Stashed changes
+>>>>>>> 9ec4831e2075930c13fa4cb9370a5f548e29bf5a
   firebase_auth
   firebase_core
   local_auth_windows
