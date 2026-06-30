@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'cart_provider.dart';
+import 'purchases_provider.dart';
 
 class StripePaymentScreen extends ConsumerStatefulWidget {
   final double amount;
@@ -16,10 +17,16 @@ class _StripePaymentScreenState extends ConsumerState<StripePaymentScreen> {
   void _simulateStripePayment() {
     setState(() => isProcessing = true);
 
-    // Simulate Network Latency talking to Stripe APIs
     Future.delayed(const Duration(seconds: 3), () {
       if (!mounted) return;
       setState(() => isProcessing = false);
+
+      // 2. GRAB ACTIVE CART ITEMS BEFORE CLEARING
+      // Note: adjust '.cartItems' depending on your exact Cart State structure
+      final activeCartItems = ref.read(cartProvider); 
+
+      // 3. SAVE TO PURCHASES HISTORY LIST
+      ref.read(purchasesProvider.notifier).addPurchasedItems(activeCartItems);
 
       // Wipe out cart contents globally upon transaction confirmation
       ref.read(cartProvider.notifier).clearCart();
@@ -34,7 +41,6 @@ class _StripePaymentScreenState extends ConsumerState<StripePaymentScreen> {
           actions: [
             TextButton(
               onPressed: () {
-                // Bounce back out to main menu
                 Navigator.of(context).pop(); // dismiss dialog
                 Navigator.of(context).pop(); // exit payment screen
                 Navigator.of(context).pop(); // exit cart screen
@@ -72,7 +78,6 @@ class _StripePaymentScreenState extends ConsumerState<StripePaymentScreen> {
             const SizedBox(height: 30),
             const Text("Card Information (Dummy)", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             const SizedBox(height: 10),
-            // Mock Credit Card Fields
             TextFormField(
               decoration: const InputDecoration(
                 filled: true, fillColor: Colors.white,
@@ -113,7 +118,7 @@ class _StripePaymentScreenState extends ConsumerState<StripePaymentScreen> {
               height: 55,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black, // Stripe-style dark layout buttons
+                  backgroundColor: Colors.black, 
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
