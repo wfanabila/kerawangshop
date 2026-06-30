@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:kerawangshop/faq.dart';
 import 'setting.dart'; 
 import 'my_purchases.dart';
+import 'items_liked.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:get/get.dart';
 import 'login.dart';
 
-// for pfp updates
 class UserProfilePage extends StatefulWidget {
   const UserProfilePage({super.key});
 
@@ -17,10 +17,8 @@ class UserProfilePage extends StatefulWidget {
 
 class _UserProfilePageState extends State<UserProfilePage> {
   String pfpPath = 'assets/images/pfp1.jpg';
-
   final User? currentUser = FirebaseAuth.instance.currentUser;
 
-  // function whenever want to update the pfp
   void updateProfileImage(String newPath) {
     setState(() {
       pfpPath = newPath;
@@ -54,11 +52,10 @@ class _UserProfilePageState extends State<UserProfilePage> {
                             margin: const EdgeInsets.all(4),
                             child: IconButton(
                               icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
-                              onPressed: () {},
+                              onPressed: () => Navigator.pop(context),
                             ),
                           ),
                           Row(
-                            // right side header (cart)
                             children: [
                               IconButton(
                                 icon: const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 26),
@@ -69,7 +66,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
                         ],
                       ),
                     ),
-                    // Profile avatar
                     Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
@@ -84,7 +80,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     const SizedBox(height: 12),
                     Text(
                       currentUser?.displayName ?? 'User',
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
@@ -104,7 +100,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
               ),
             ),
 
-            // main content body
             Container(
               margin: const EdgeInsets.only(top: 360),
               decoration: const BoxDecoration(
@@ -114,8 +109,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   topRight: Radius.circular(40),
                 ),
               ),
-
-              // items liked, my purchases
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25.0),
                 child: Column(
@@ -123,33 +116,35 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     Transform.translate(
                       offset: const Offset(0, -35),
                       child: Row(
-                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           _buildQuickActionButton(
-                          Icons.favorite,
-                          'Items Liked',
-                          primaryPurple,
-                          () {},
-                        ),
-                        const SizedBox(width: 10),
-                        _buildQuickActionButton(
-                          Icons.hourglass_bottom,
-                          'My Purchases',
-                          primaryPurple,
-                          () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const MyPurchasesPage()),
-                            );
-                          },
-                        ),
-                        
+                            Icons.favorite,
+                            'Items Liked',
+                            primaryPurple,
+                            () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const ItemsLikedPage()),
+                              );
+                            },
+                          ),
+                          const SizedBox(width: 10),
+                          _buildQuickActionButton(
+                            Icons.hourglass_bottom,
+                            'My Purchases',
+                            primaryPurple,
+                            () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const MyPurchasesPage()),
+                              );
+                            },
+                          ),
                         ],
                       ),
                     ),
 
-                    // menu list
                     Transform.translate(
                       offset: const Offset(0, -8),
                       child: Column(
@@ -168,7 +163,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
                           }),
                           _buildMenuListTile(Icons.email_outlined, 'Contact Us', primaryPurple, () {}),
                           const SizedBox(height: 10),
-                          // Log Out
                           TextButton.icon(
                             onPressed: () async {
                               try {
@@ -214,11 +208,10 @@ class _UserProfilePageState extends State<UserProfilePage> {
     );
   }
 
-  // items liked, my purchases
   Widget _buildQuickActionButton(IconData icon, String label, Color iconColor, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(20), // Keeps the ripple effect matching the container shape
+      borderRadius: BorderRadius.circular(20),
       child: Container(
         width: 115,
         height: 80,
@@ -253,10 +246,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
     );
   }
 
-  // menu list
   Widget _buildMenuListTile(IconData icon, String title, Color purpleTheme, VoidCallback onTap) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12), // space between each list
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),

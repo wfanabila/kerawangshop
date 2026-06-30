@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'cart_provider.dart';
+import 'favorites_provider.dart';
 
 class ProductDetailScreen extends ConsumerWidget {
   final Map<String, dynamic> product;
@@ -9,6 +10,9 @@ class ProductDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final favoriteList = ref.watch(favoritesProvider);
+    final isLiked = favoriteList.any((item) => item['name'] == product['name']);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF7F5FF),
       appBar: AppBar(
@@ -56,7 +60,7 @@ class ProductDetailScreen extends ConsumerWidget {
                     product['description'] ?? 'No description provided.',
                     style: const TextStyle(fontSize: 16, height: 1.5),
                   ),
-                  const SizedBox(height: 100), // Spacing for button bottom alignment
+                  const SizedBox(height: 100), 
                 ],
               ),
             ),
@@ -64,24 +68,66 @@ class ProductDetailScreen extends ConsumerWidget {
         ),
       ),
       bottomSheet: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         color: Colors.white,
-        child: SizedBox(
-          width: double.infinity,
-          height: 55,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF7B2FF7),
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            onPressed: () {
-              ref.read(cartProvider.notifier).addToCart(product);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("${product['name']} added to cart!")),
-              );
-            },
-            child: const Text("Add To Cart", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        child: SafeArea(
+          child: Row(
+            children: [
+              // like button
+              Container(
+                height: 55,
+                width: 55,
+                decoration: BoxDecoration(
+                  color: isLiked ? Colors.red.shade50 : Colors.grey.shade50, // Changes dynamically
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: isLiked ? Colors.red.shade200 : Colors.grey.shade200),
+                ),
+                child: IconButton(
+                  icon: Icon(
+                    isLiked ? Icons.favorite : Icons.favorite_border, 
+                    color: isLiked ? Colors.red : Colors.grey, 
+                    size: 28,
+                  ),
+                  onPressed: () {
+                    ref.read(favoritesProvider.notifier).toggleFavorite(product);
+                    
+                    ScaffoldMessenger.of(context).clearSnackBars(); // Prevents stacking snackbars
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          isLiked 
+                              ? "${product['name']} removed from favorites!" 
+                              : "${product['name']} added to favorites!",
+                        ),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(width: 15), 
+              
+              // add to cart button
+              Expanded(
+                child: SizedBox(
+                  height: 55,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF7B2FF7),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    onPressed: () {
+                      ref.read(cartProvider.notifier).addToCart(product);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("${product['name']} added to cart!")),
+                      );
+                    },
+                    child: const Text("Add To Cart", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
