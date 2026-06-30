@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'profile_provider.dart';
 import 'package:kerawangshop/faq.dart';
 import 'setting.dart'; 
 import 'my_purchases.dart';
@@ -7,27 +9,24 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:get/get.dart';
 import 'login.dart';
+import 'cart_screen.dart';
 
-class UserProfilePage extends StatefulWidget {
+class UserProfilePage extends ConsumerStatefulWidget {
   const UserProfilePage({super.key});
 
   @override
-  State<UserProfilePage> createState() => _UserProfilePageState();
+  ConsumerState<UserProfilePage> createState() => _UserProfilePageState();
 }
 
-class _UserProfilePageState extends State<UserProfilePage> {
-  String pfpPath = 'assets/images/pfp1.jpg';
+class _UserProfilePageState extends ConsumerState<UserProfilePage> {
   final User? currentUser = FirebaseAuth.instance.currentUser;
-
-  void updateProfileImage(String newPath) {
-    setState(() {
-      pfpPath = newPath;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     const Color primaryPurple = Color(0xFF7B2FF7);
+    
+    // WATCH THE LIVE PROFILE PROVIDER
+    final liveProfile = ref.watch(profileProvider);
 
     return Scaffold(
       backgroundColor: primaryPurple,
@@ -50,16 +49,21 @@ class _UserProfilePageState extends State<UserProfilePage> {
                         children: [
                           Container(
                             margin: const EdgeInsets.all(4),
-                            child: IconButton(
-                              icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
-                              onPressed: () => Navigator.pop(context),
-                            ),
+                            // child: IconButton(
+                            //   icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
+                            //   onPressed: () => Navigator.pop(context),
+                            // ),
                           ),
                           Row(
                             children: [
                               IconButton(
                                 icon: const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 26),
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const CartScreen()),
+                              );
+                                },
                               ),
                             ],
                           )
@@ -74,12 +78,13 @@ class _UserProfilePageState extends State<UserProfilePage> {
                       child: CircleAvatar(
                         radius: 54,
                         backgroundColor: Colors.white,
-                        backgroundImage: AssetImage(pfpPath),
+                        // Synchronized dynamically with live data model state path
+                        backgroundImage: AssetImage(liveProfile.pfpPath),
                       ),
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      currentUser?.displayName ?? 'User',
+                      liveProfile.name.isNotEmpty ? liveProfile.name : (currentUser?.displayName ?? 'User'),
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 26,
@@ -89,7 +94,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      currentUser?.email ?? 'No Email Provided',
+                      liveProfile.email.isNotEmpty ? liveProfile.email : (currentUser?.email ?? 'No Email Provided'),
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.85),
                         fontSize: 14,
@@ -191,6 +196,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                 color: Colors.grey[500],
                                 fontSize: 15,
                                 fontWeight: FontWeight.w500,
+                                // Correcting layout overflow warnings shown at screen bottom
                               ),
                             ),
                           ),

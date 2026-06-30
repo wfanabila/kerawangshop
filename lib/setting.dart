@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'edit_profile.dart';
 import 'package:kerawangshop/faq.dart';
-
+import 'change_password.dart';
+import 'login.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -64,7 +66,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 Icons.lock_open_rounded, 
                 'Change Password', 
                 primaryPurple,
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ChangePasswordPage()),
+                  );
+                },
               ),
               
               const SizedBox(height: 25),
@@ -105,9 +112,9 @@ class _SettingsPageState extends State<SettingsPage> {
               const SizedBox(height: 10),
               _buildSettingsTile(Icons.quiz_outlined, 'FAQ', primaryPurple, onTap: () {
                 Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const FAQPage()),
-                            );
+                  context,
+                  MaterialPageRoute(builder: (context) => const FAQPage()),
+                );
               }),
               _buildSettingsTile(Icons.email_outlined, 'Contact Us', primaryPurple, onTap: () {}),
 
@@ -116,7 +123,7 @@ class _SettingsPageState extends State<SettingsPage> {
               // logout
               Center(
                 child: TextButton.icon(
-                  onPressed: () {},
+                  onPressed: () => _handleLogOut(context),
                   icon: Icon(Icons.logout, color: Colors.grey[500], size: 22),
                   label: Text(
                     'Log Out',
@@ -134,6 +141,25 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _handleLogOut(BuildContext context) async {
+    try {
+      await FirebaseAuth.instance.signOut();
+
+      if (context.mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const Login()), 
+          (Route<dynamic> route) => false,
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error logging out: ${e.toString()}')),
+        );
+      }
+    }
   }
 
   Widget _buildSectionHeader(String title) {

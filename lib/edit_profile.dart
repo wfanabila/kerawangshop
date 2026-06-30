@@ -1,21 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'profile_provider.dart';
+import 'change_password.dart';
 
-class EditProfilePage extends StatefulWidget {
+class EditProfilePage extends ConsumerStatefulWidget {
   const EditProfilePage({super.key});
 
   @override
-  State<EditProfilePage> createState() => _EditProfilePageState();
+  ConsumerState<EditProfilePage> createState() => _EditProfilePageState();
 }
 
-class _EditProfilePageState extends State<EditProfilePage> {
-  final TextEditingController _nameController =
-      TextEditingController(text: 'Leehan Kim');
-  final TextEditingController _emailController =
-      TextEditingController(text: 'leehan04@gmail.com');
-  final TextEditingController _phoneController =
-      TextEditingController(text: '+60 187906534');
+class _EditProfilePageState extends ConsumerState<EditProfilePage> {
+  late TextEditingController _nameController;
+  late TextEditingController _emailController;
+  late TextEditingController _phoneController;
 
-  String pfpPath = 'assets/images/pfp1.jpg';
+  @override
+  void initState() {
+    super.initState();
+
+    final profile = ref.read(profileProvider);
+    _nameController = TextEditingController(text: profile.name);
+    _emailController = TextEditingController(text: profile.email);
+    _phoneController = TextEditingController(text: profile.phone);
+  }
 
   @override
   void dispose() {
@@ -29,10 +37,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Widget build(BuildContext context) {
     const Color primaryPurple = Color(0xFF7B2CBF);
     const Color backgroundTint = Color(0xFFF3EEFD);
+    final profile = ref.watch(profileProvider);
 
     return Scaffold(
       backgroundColor: backgroundTint,
-
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -42,23 +50,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ),
         title: const Text(
           'Edit Profile',
-          style: TextStyle(
-            color: Color(0xFF2D2D2D),
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Color(0xFF2D2D2D), fontSize: 28, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
-
       body: SingleChildScrollView(
         child: Column(
           children: [
             const SizedBox(height: 25),
-
             Container(
               width: double.infinity,
-
               constraints: BoxConstraints(
                 minHeight: MediaQuery.of(context).size.height - 180,
               ),
@@ -72,13 +73,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
               child: Column(
                 children: [
-
-                  // pfp 
                   Stack(
                     children: [
                       CircleAvatar(
                         radius: 58,
-                        backgroundImage: AssetImage(pfpPath),
+                        backgroundImage: AssetImage(profile.pfpPath),
                         backgroundColor: Colors.grey[200],
                       ),
                       Positioned(
@@ -86,7 +85,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         right: 2,
                         child: GestureDetector(
                           onTap: () {
-                            // TODO: change pfp
+                            // Change PFP handling
                           },
                           child: Container(
                             width: 32,
@@ -94,85 +93,41 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             decoration: const BoxDecoration(
                               color: Colors.white,
                               shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 4,
-                                  offset: Offset(0, 2),
-                                ),
-                              ],
+                              boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
                             ),
-                            child: const Icon(Icons.add,
-                                color: Colors.black87, size: 20),
+                            child: const Icon(Icons.add, color: Colors.black87, size: 20),
                           ),
                         ),
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 40),
-
-                  // name
-                  _buildEditField(
-                    label: 'Name',
-                    controller: _nameController,
-                    trailingIcon: Icons.edit_outlined,
-                    purpleTheme: primaryPurple,
-                  ),
-
+                  _buildEditField(label: 'Name', controller: _nameController, trailingIcon: Icons.edit_outlined, purpleTheme: primaryPurple),
                   const SizedBox(height: 14),
-
-                  // email
-                  _buildEditField(
-                    label: 'Email',
-                    controller: _emailController,
-                    trailingIcon: Icons.mail_outline_rounded,
-                    purpleTheme: primaryPurple,
-                    keyboardType: TextInputType.emailAddress,
-                  ),
-
+                  _buildEditField(label: 'Email', controller: _emailController, trailingIcon: Icons.mail_outline_rounded, purpleTheme: primaryPurple, keyboardType: TextInputType.emailAddress),
                   const SizedBox(height: 14),
-
-                  // phone number
-                  _buildEditField(
-                    label: 'Phone',
-                    controller: _phoneController,
-                    trailingIcon: Icons.phone_outlined,
-                    purpleTheme: primaryPurple,
-                    keyboardType: TextInputType.phone,
-                  ),
-
+                  _buildEditField(label: 'Phone', controller: _phoneController, trailingIcon: Icons.phone_outlined, purpleTheme: primaryPurple, keyboardType: TextInputType.phone),
                   const SizedBox(height: 30),
-
-                  // change pass
                   Container(
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.grey.withOpacity(0.40)),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: ListTile(
-                      contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
                       leading: Container(
                         padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: primaryPurple.withOpacity(0.10),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(Icons.lock_outline_rounded,
-                            color: primaryPurple, size: 24),
+                        decoration: BoxDecoration(color: primaryPurple.withOpacity(0.10), borderRadius: BorderRadius.circular(10)),
+                        child: const Icon(Icons.lock_outline_rounded, color: primaryPurple, size: 24),
                       ),
-                      title: const Text(
-                        'Change Password?',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 15,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      trailing: const Icon(Icons.arrow_forward_ios,
-                          size: 15, color: primaryPurple),
-                      onTap: () {},
+                      title: const Text('Change Password?', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Colors.black87)),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 15, color: primaryPurple),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const ChangePasswordPage()),
+                        );
+                      },
                     ),
                   ),
                 ],
@@ -181,66 +136,43 @@ class _EditProfilePageState extends State<EditProfilePage> {
           ],
         ),
       ),
-
-
       bottomNavigationBar: Container(
         color: Colors.white,
         padding: EdgeInsets.only(
-          left: 20,
-          right: 20,
+          left: 20, right: 20, top: 12,
           bottom: MediaQuery.of(context).padding.bottom + 20,
-          top: 12,
         ),
         child: Row(
           children: [
-
-            // discard button
             Expanded(
               child: OutlinedButton(
                 onPressed: () => Navigator.pop(context),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   side: const BorderSide(color: Color(0xFFCCCCCC), width: 1.5),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                 ),
-                child: const Text(
-                  'Discard',
-                  style: TextStyle(
-                    color: Colors.black87,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                child: const Text('Discard', style: TextStyle(color: Colors.black87, fontSize: 16, fontWeight: FontWeight.w600)),
               ),
             ),
-
             const SizedBox(width: 14),
-
-            // save button
             Expanded(
               child: ElevatedButton(
-                onPressed: () {
-                  // TODO: save
-                  Navigator.pop(context);
+                onPressed: () async {
+                  await ref.read(profileProvider.notifier).updateProfile(
+                        name: _nameController.text.trim(),
+                        email: _emailController.text.trim(),
+                        phone: _phoneController.text.trim(),
+                      );
+                  if (context.mounted) Navigator.pop(context);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: primaryPurple,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                 ),
-                child: const Text(
-                  'Save',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                child: const Text('Save', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
               ),
             ),
           ],
@@ -269,28 +201,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    label,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black54,
-                    ),
-                  ),
+                  Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black54)),
                   const SizedBox(height: 4),
                   TextField(
                     controller: controller,
                     keyboardType: keyboardType,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87,
-                    ),
-                    decoration: const InputDecoration(
-                      isDense: true,
-                      contentPadding: EdgeInsets.zero,
-                      border: InputBorder.none,
-                    ),
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.black87),
+                    decoration: const InputDecoration(isDense: true, contentPadding: EdgeInsets.zero, border: InputBorder.none),
                   ),
                 ],
               ),
