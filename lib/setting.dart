@@ -6,6 +6,7 @@ import 'package:kerawangshop/faq.dart';
 import 'change_password.dart';
 import 'login.dart';
 import 'theme_provider.dart';
+import 'contact_us.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -53,9 +54,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              
-              // 
-// account
+
+              // account
               _buildSectionHeader('Account', labelColor),
               const SizedBox(height: 10),
               _buildSettingsTile(
@@ -70,7 +70,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     context,
                     MaterialPageRoute(builder: (context) => const EditProfilePage()),
                   );
-},
+                },
               ),
               _buildSettingsTile(
                 Icons.lock_open_rounded, 
@@ -86,7 +86,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   );
                 },
        
-        ),
+              ),
               
               const SizedBox(height: 25),
 
@@ -133,8 +133,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   MaterialPageRoute(builder: (context) => const FAQPage()),
                 );
             
-  }),
-              _buildSettingsTile(Icons.email_outlined, 'Contact Us', primaryPurple, cardBackground, textColor, onTap: () {}),
+            }),
+              _buildSettingsTile(Icons.email_outlined, 'Contact Us', primaryPurple, cardBackground, textColor, onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ContactUsPage()),
+                );
+              }),
 
               const SizedBox(height: 25),
 

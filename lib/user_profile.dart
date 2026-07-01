@@ -5,12 +5,13 @@ import 'package:kerawangshop/faq.dart';
 import 'setting.dart'; 
 import 'my_purchases.dart';
 import 'items_liked.dart';
+import 'contact_us.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:get/get.dart';
 import 'login.dart';
 import 'cart_screen.dart';
-import 'theme_provider.dart'; // Added to fix the 'themeProvider' undefined error
+import 'theme_provider.dart';
 
 class UserProfilePage extends ConsumerStatefulWidget {
   const UserProfilePage({super.key});
@@ -30,7 +31,6 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
     final Color cardBackground = isDarkMode ? const Color(0xFF221A4A) : Colors.white;
     final Color textColor = isDarkMode ? Colors.white : Colors.black87;
     
-    // WATCH THE LIVE PROFILE PROVIDER
     final liveProfile = ref.watch(profileProvider);
 
     return Scaffold(
@@ -48,78 +48,62 @@ class _UserProfilePageState extends ConsumerState<UserProfilePage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Padding(
-   
                     padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-   
                         Container(
                             margin: const EdgeInsets.all(4),
                             // child: IconButton(
-                 
-            //   icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
-            //   onPressed: () => Navigator.pop(context),
-            // ),
-                 
-          ),
+                            //   icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
+                            //   onPressed: () => Navigator.pop(context),
+                            // ),
+                        ),
                           Row(
                             children: [
                               IconButton(
-      
                                icon: const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 26),
                                 onPressed: () {
-                                  
- Navigator.push(
+                                  Navigator.push(
                                   context,
                                   MaterialPageRoute(builder: (context) => const CartScreen()),
-                            
   );
                                 },
                               ),
                             ],
                           )
-             
             ],
                       ),
                     ),
                     Container(
                       decoration: BoxDecoration(
-    
                      shape: BoxShape.circle,
                         border: Border.all(color: Colors.white.withOpacity(0.6), width: 3),
                       ),
                       child: CircleAvatar(
-      
                    radius: 54,
                         backgroundColor: Colors.white,
-                        // Synchronized dynamically with live data model state path
-                        
-backgroundImage: AssetImage(liveProfile.pfpPath),
+                        backgroundImage: AssetImage(liveProfile.pfpPath),
                       ),
                     ),
                     const SizedBox(height: 12),
                     Text(
-               
                        liveProfile.name.isNotEmpty ? liveProfile.name : (currentUser?.displayName ?? 'User'),
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 26,
-             
                         fontWeight: FontWeight.bold,
                         letterSpacing: 0.5,
                       ),
                     ),
-                    const 
-SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       liveProfile.email.isNotEmpty ?
-liveProfile.email : (currentUser?.email ?? 'No Email Provided'),
+                      liveProfile.email : (currentUser?.email ?? 'No Email Provided'),
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.85),
                         fontSize: 14,
-                     
-  ),
+                      ),
                     ),
                   ],
                 ),
@@ -127,134 +111,116 @@ liveProfile.email : (currentUser?.email ?? 'No Email Provided'),
             ),
 
             Container(
-       
               margin: const EdgeInsets.only(top: 360),
               decoration: BoxDecoration(
                 color: contentBackground,
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(40),
                   topRight: Radius.circular(40),
-  
                ),
               ),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25.0),
                 child: Column(
                   children: [
-  
                    Transform.translate(
                       offset: const Offset(0, -35),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-         
-                children: [
+                      children: [
                           _buildQuickActionButton(
                             Icons.favorite,
                             'Items Liked',
- 
                             isDarkMode ? const Color(0xFF7B2FF7) : primaryPurple,
                             cardBackground,
                             textColor,
                             () {
                               Navigator.push(
-              
-                   context,
+                      context,
                                 MaterialPageRoute(builder: (context) => const ItemsLikedPage()),
                               );
 },
                           ),
                           const SizedBox(width: 10),
                           _buildQuickActionButton(
-                    
-         Icons.hourglass_bottom,
+                            Icons.hourglass_bottom,
                             'My Purchases',
                             isDarkMode ? const Color(0xFF7B2FF7) : primaryPurple,
                             cardBackground,
                             textColor,
                             () {
-      
                                Navigator.push(
                                 context,
                                 MaterialPageRoute(builder: (context) => const MyPurchasesPage()),
-        
                                );
                             },
                           ),
-                        
 ],
                       ),
                     ),
 
                     Transform.translate(
                       offset: const Offset(0, -8),
-             
-          child: Column(
+                      child: Column(
                         children: [
                           _buildMenuListTile(Icons.settings_outlined, 'Setting', isDarkMode ? const Color(0xFF7B2FF7) : primaryPurple, cardBackground, textColor, () {
                             Navigator.push(
-       
                                context,
                               MaterialPageRoute(builder: (context) => const SettingsPage()),
                             );
-}),
+                          }),
                           _buildMenuListTile(Icons.quiz_outlined, 'FAQ', isDarkMode ? const Color(0xFF7B2FF7) : primaryPurple, cardBackground, textColor, () {
                             Navigator.push(
                               context,
-            
                                MaterialPageRoute(builder: (context) => const FAQPage()),
                             );
                           }),
-                        
-  _buildMenuListTile(Icons.email_outlined, 'Contact Us', isDarkMode ? const Color(0xFF7B2FF7) : primaryPurple, cardBackground, textColor, () {}),
+                          
+                          _buildMenuListTile(Icons.email_outlined, 'Contact Us', isDarkMode ? const Color(0xFF7B2FF7) : primaryPurple, cardBackground, textColor, () {
+                            Navigator.push(
+                              context,
+                               MaterialPageRoute(builder: (context) => const ContactUsPage()),
+                            );
+                          }),
                           const SizedBox(height: 10),
                           TextButton.icon(
                             onPressed: () async {
-        
                                try {
                                 await FirebaseAuth.instance.signOut();
                                 await GoogleSignIn().signOut();
-           
                               Get.snackbar(
                                   "Logged Out",
                                   "Successfully logged out of your account",
-     
                               backgroundColor: Colors.amber,
                                   colorText: Colors.black,
                                 );
-Get.offAll(() => const Login());   
+                                Get.offAll(() => const Login());   
                               } catch (e) {
                                 Get.snackbar(
                                   "Error",
-                           
-        "Failed to log out. Try again.",
+                                  "Failed to log out. Try again.",
                                   backgroundColor: Colors.red,
                                   colorText: Colors.white,
-                  
-               );
-}
+                                );
+                              }
                             },
                             icon: Icon(Icons.logout, color: Colors.grey[500], size: 20),
                             label: Text(
-          
                              'Log Out',
                               style: TextStyle(
                                 color: Colors.grey[500],
-               
                                  fontSize: 15,
                                 fontWeight: FontWeight.w500,
                                 // Correcting layout overflow warnings shown at screen bottom
-         
                               ),
                             ),
                           ),
-                         
-  const SizedBox(height: 120),
+                          const SizedBox(height: 120),
                         ],
                       ),
                     ),
                   ],
-             
-    ),
+                  ),
               ),
             ),
           ],
@@ -274,7 +240,6 @@ Get.offAll(() => const Login());
           color: backgroundColor,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
-   
           BoxShadow(
               color: Colors.black.withOpacity(0.08),
               blurRadius: 14,
@@ -283,7 +248,6 @@ Get.offAll(() => const Login());
           ],
         ),
         child: Column(
-     
       mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, color: iconColor, size: 38),
@@ -291,7 +255,6 @@ Get.offAll(() => const Login());
             Text(
               label,
               style: TextStyle(
-           
               fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: textColor,
@@ -300,7 +263,6 @@ Get.offAll(() => const Login());
             ),
           ],
         ),
- 
       ),
     );
   }
@@ -315,7 +277,6 @@ Get.offAll(() => const Login());
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.03),
-        
              blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -325,8 +286,7 @@ Get.offAll(() => const Login());
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
         leading: Container(
           padding: const EdgeInsets.all(8),
-          child: Icon(icon, color: purpleTheme, size: 
-28),
+          child: Icon(icon, color: purpleTheme, size: 28),
         ),
         title: Text(
           title,
@@ -336,7 +296,6 @@ Get.offAll(() => const Login());
             color: textColor,
           ),
         ),
-    
          trailing: Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey[400]),
         onTap: onTap,
       ),
