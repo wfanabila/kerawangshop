@@ -51,7 +51,7 @@ class _StripePaymentScreenState extends ConsumerState<StripePaymentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF3EEFA),
-      appBar: AppBar(title: const Text("Stripe Checkout"), backgroundColor: Colors.transparent, elevation: 0),
+      appBar: AppBar(title: Text("Checkout"), backgroundColor: Colors.transparent, elevation: 0),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -70,7 +70,7 @@ class _StripePaymentScreenState extends ConsumerState<StripePaymentScreen> {
               ),
             ),
             const SizedBox(height: 30),
-            const Text("Card Information (Dummy)", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            const Text("Card Information", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             const SizedBox(height: 10),
             // Mock Credit Card Fields
             TextFormField(
@@ -113,14 +113,14 @@ class _StripePaymentScreenState extends ConsumerState<StripePaymentScreen> {
               height: 55,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black, // Stripe-style dark layout buttons
+                  backgroundColor: Color(0xFF7B2FF7), // Stripe-style dark layout buttons
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 onPressed: isProcessing ? null : _simulateStripePayment,
                 child: isProcessing
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : Text("Pay RM ${widget.amount.toStringAsFixed(2)}", style: const TextStyle(fontSize: 18)),
+                    : Text("Pay RM ${widget.amount.toStringAsFixed(2)}", style: const TextStyle(fontSize: 18),),
               ),
             ),
           ],

@@ -32,7 +32,7 @@ class CartScreen extends ConsumerWidget {
                       return Card(
                         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         child: ListTile(
-                          leading: Image.asset(item['image'] ?? 'assets/images/google.png', width: 50, fit: BoxFit.cover),
+                          leading: Image.asset(item['image'] ?? 'assets/images/shoes.png', width: 50, fit: BoxFit.cover),
                           title: Text(item['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
                           subtitle: Text(item['price'] ?? '', style: const TextStyle(color: Colors.green)),
                           trailing: IconButton(

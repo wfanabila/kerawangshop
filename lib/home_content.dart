@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'products_provider.dart';
 import 'product_detail_screen.dart';
 import 'cart_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'sell_screen.dart';
 
 class HomeContent extends ConsumerStatefulWidget {
   const HomeContent({super.key});
@@ -18,6 +21,8 @@ class _HomeContentState extends ConsumerState<HomeContent> {
   @override
   Widget build(BuildContext context) {
     final productsAsync = ref.watch(productsStreamProvider);
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+
     return Scaffold(
       body: Container(
         color: const Color(0xFFF7F5FF),
@@ -90,8 +95,11 @@ class _HomeContentState extends ConsumerState<HomeContent> {
                         crossAxisSpacing: 12,
                         childAspectRatio: 0.85, 
                       ),
+
                       itemBuilder: (context, index) {
                         final product = filteredProducts[index];
+                        final bool isMyProduct = product['sellerId'] == currentUserId && currentUserId != null;
+
                         return Card(
                           elevation: 3,
                           shape: RoundedRectangleBorder(
@@ -114,7 +122,7 @@ class _HomeContentState extends ConsumerState<HomeContent> {
                                   child: ClipRRect(
                                     borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                                     child: Image.asset(
-                                      product['image'] ?? 'assets/images/google.png', 
+                                      product['image'] ?? 'assets/images/shoes.png', 
                                       width: double.infinity,
                                       fit: BoxFit.cover,
                                     ),
@@ -139,6 +147,31 @@ class _HomeContentState extends ConsumerState<HomeContent> {
                                     ],
                                   ),
                                 ),
+
+                                if (isMyProduct)
+                                  Container(
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFFEDE8FF),
+                                      borderRadius: BorderRadius.vertical(bottom: Radius.circular(12)),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.edit, color: Colors.deepPurple, size: 20),
+                                        onPressed: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(builder: (context) => SellScreen(productToEdit: product)),
+                                          );
+                                        }
+                                      ),
+                                      IconButton(
+                                          icon: const Icon(Icons.delete, color: Colors.redAccent, size: 20),
+                                          onPressed: () => _confirmDelete(context, product['id']), // product['id'] is your Firebase Doc ID
+                                        ),
+                                    ],),
+                                  )
                               ],
                             ),
                           ),
@@ -153,6 +186,30 @@ class _HomeContentState extends ConsumerState<HomeContent> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void _confirmDelete(BuildContext context, String? docId) {
+    if (docId == null) return;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Delete Product?"),
+        content: const Text("Are you sure you want to permanently remove this listing?"),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await FirebaseFirestore.instance.collection('products').doc(docId).delete();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Listing deleted successfully.")),
+              );
+            },
+            child: const Text("Delete", style: TextStyle(color: Colors.red)),
+          ),
+        ],
       ),
     );
   }

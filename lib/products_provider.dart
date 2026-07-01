@@ -14,7 +14,7 @@ Future<void> addProductToFirestore({
     'condition': condition,
     'price': 'RM $price',
     'description': description,
-    'image': 'assets/images/google.png', // Default image fallback
+    'image': 'assets/images/shoes.png', // Default image fallback
     'createdAt': FieldValue.serverTimestamp(),
   });
 }

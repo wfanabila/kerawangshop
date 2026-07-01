@@ -6,7 +6,8 @@ import 'home_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class SellScreen extends StatefulWidget {
-  const SellScreen({super.key});
+  final Map<String, dynamic>? productToEdit;
+  const SellScreen({super.key, this.productToEdit});
 
   @override
   State<SellScreen> createState() => _SellScreenState();
@@ -35,6 +36,31 @@ class _SellScreenState extends State<SellScreen> {
   ];
 
   final List<String> conditions = ["New", "Used"];
+
+  bool get isEditMode => widget.productToEdit != null;
+
+  @override
+  void initState() {
+    super.initState();
+    // If we're editing, pre-fill all form fields with existing product values
+    if (isEditMode) {
+      final p = widget.productToEdit!;
+      nameController.text = p['name'] ?? '';
+      
+      // Sanitizes "RM 5.00" back to "5.00" for input editing
+      String rawPrice = p['price'] ?? '';
+      priceController.text = rawPrice.replaceAll('RM ', '').trim();
+      
+      descriptionController.text = p['description'] ?? '';
+      
+      if (categories.contains(p['category'])) {
+        selectedCategory = p['category'];
+      }
+      if (conditions.contains(p['condition'])) {
+        selectedCondition = p['condition'];
+      }
+    }
+  }
 
   // Helper method to open the device gallery and select an image
   Future<void> _pickImageFromGallery() async {
@@ -70,18 +96,12 @@ class _SellScreenState extends State<SellScreen> {
               Row(
                 children: [
                   IconButton(
-                    onPressed: () {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (context) => const HomeScreen()), // Replace with your home class name
-                        (route) => false, // This clears the navigation history so they can't "pop" back into the edit screen
-                      );
-                    },
+                    onPressed: () => Navigator.pop(context), // Simplified context clean-up back step
                     icon: const Icon(Icons.arrow_back),
                   ),
                   const SizedBox(width: 10),
-                  const Text(
-                    "Add Item",
+                  Text(
+                    isEditMode ? "Edit Listing" : "Add Item",
                     style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -281,7 +301,7 @@ class _SellScreenState extends State<SellScreen> {
     'condition': condition,
     'price': 'RM $price',
     'description': description,
-    'image': 'assets/images/google.png', 
+    'image': 'assets/images/shoes.png', 
     'createdAt': FieldValue.serverTimestamp(),
     'sellerId': currentUserId, // <--- Saves who uploaded it, but doesn't restrict home screen visibility!
   });

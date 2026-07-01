@@ -58,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
               right: 0,
               bottom: 0,
               child: Container(
-                height: 65,
+                height: 75,
                 decoration: const BoxDecoration(
                   color: barColor,
                   borderRadius: BorderRadius.vertical(

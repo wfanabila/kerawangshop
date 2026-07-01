@@ -22,7 +22,7 @@ class ProductDetailScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Image.asset(
-              product['image'] ?? 'assets/images/google.png',
+              product['image'] ?? 'assets/images/shoes.png',
               width: double.infinity,
               height: 300,
               fit: BoxFit.cover,
