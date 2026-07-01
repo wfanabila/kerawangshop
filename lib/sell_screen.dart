@@ -1,19 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart'; // <--- ADD THIS LINE
 import 'dart:io';
 import 'home_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'theme_provider.dart';
 
+<<<<<<< HEAD
 class SellScreen extends StatefulWidget {
   final Map<String, dynamic>? productToEdit;
   const SellScreen({super.key, this.productToEdit});
+=======
+class SellScreen extends ConsumerStatefulWidget {
+  const SellScreen({super.key});
+>>>>>>> f28a5c122a510d5eafb351cc5a47785079775c4a
 
   @override
-  State<SellScreen> createState() => _SellScreenState();
+  ConsumerState<SellScreen> createState() => _SellScreenState();
 }
 
-class _SellScreenState extends State<SellScreen> {
+class _SellScreenState extends ConsumerState<SellScreen> {
   String? selectedCategory = "Food & Drinks";
   String? selectedCondition = "New";
   
@@ -80,22 +87,29 @@ class _SellScreenState extends State<SellScreen> {
     super.dispose();
   }
 
-  
-
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = ref.watch(themeProvider);
+    final Color backgroundTint = isDarkMode ? const Color(0xFF120A2A) : const Color(0xFFF3EEFA);
+    final Color cardBackground = isDarkMode ? const Color(0xFF221A4A) : Colors.white;
+    final Color textColor = isDarkMode ? Colors.white : Colors.black;
+    final Color deepPurpleTheme = isDarkMode ? const Color(0xFF7B2FF7) : Colors.deepPurple;
+    final Color fieldColor = isDarkMode ? const Color(0xFF1E163A) : Colors.white;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF3EEFA),
+      backgroundColor: backgroundTint,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+             
               // Header
               Row(
                 children: [
                   IconButton(
+<<<<<<< HEAD
                     onPressed: () => Navigator.pop(context), // Simplified context clean-up back step
                     icon: const Icon(Icons.arrow_back),
                   ),
@@ -103,13 +117,28 @@ class _SellScreenState extends State<SellScreen> {
                   Text(
                     isEditMode ? "Edit Listing" : "Add Item",
                     style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+=======
+                    onPressed: () {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => const HomeScreen()), // Replace with your home class name
+                        (route) => false, // This clears the navigation history so they can't "pop" back into the edit screen
+                      );
+                    },
+                    icon: Icon(Icons.arrow_back, color: textColor),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    "Add Item",
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: textColor),
+>>>>>>> f28a5c122a510d5eafb351cc5a47785079775c4a
                   ),
                 ],
               ),
               const SizedBox(height: 20),
 
               // --- SINGLE IMAGE PICKER ROW ---
-              const Text("Product Photo", style: TextStyle(color: Colors.deepPurple, fontWeight: FontWeight.bold)),
+              Text("Product Photo", style: TextStyle(color: deepPurpleTheme, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               GestureDetector(
                 onTap: _pickImageFromGallery,
@@ -117,8 +146,8 @@ class _SellScreenState extends State<SellScreen> {
                   width: 120,
                   height: 120,
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(color: Colors.deepPurple, width: 1.5),
+                    color: fieldColor,
+                    border: Border.all(color: deepPurpleTheme, width: 1.5),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: _pickedImage != null
@@ -126,12 +155,12 @@ class _SellScreenState extends State<SellScreen> {
                           borderRadius: BorderRadius.circular(10),
                           child: Image.file(_pickedImage!, fit: BoxFit.cover),
                         )
-                      : const Column(
+                      : Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.add_a_photo, color: Colors.deepPurple, size: 30),
-                            SizedBox(height: 4),
-                            Text("Add Photo", style: TextStyle(fontSize: 12, color: Colors.deepPurple)),
+                            Icon(Icons.add_a_photo, color: deepPurpleTheme, size: 30),
+                            const SizedBox(height: 4),
+                            Text("Add Photo", style: TextStyle(fontSize: 12, color: deepPurpleTheme)),
                           ],
                         ),
                 ),
@@ -139,34 +168,38 @@ class _SellScreenState extends State<SellScreen> {
               const SizedBox(height: 20),
 
               // Item Name Field
-              const Text("Item Name", style: TextStyle(color: Colors.deepPurple, fontWeight: FontWeight.bold)),
+              Text("Item Name", style: TextStyle(color: deepPurpleTheme, fontWeight: FontWeight.bold)),
               const SizedBox(height: 5),
               TextField(
                 controller: nameController,
-                decoration: const InputDecoration(
+                style: TextStyle(color: textColor),
+                decoration: InputDecoration(
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: fieldColor,
                   hintText: "Popia Carbonara",
-                  border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
+                  hintStyle: const TextStyle(color: Colors.grey),
+                  border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
                 ),
               ),
               const SizedBox(height: 15),
 
               // Category Field
-              const Text("Category", style: TextStyle(color: Colors.deepPurple, fontWeight: FontWeight.bold)),
+              Text("Category", style: TextStyle(color: deepPurpleTheme, fontWeight: FontWeight.bold)),
               const SizedBox(height: 5),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: fieldColor,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade400),
+                  border: Border.all(color: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade400),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: selectedCategory,
+                    dropdownColor: cardBackground,
+                    style: TextStyle(color: textColor),
                     isExpanded: true,
-                    items: categories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                    items: categories.map((c) => DropdownMenuItem(value: c, child: Text(c, style: TextStyle(color: textColor)))).toList(),
                     onChanged: (value) => setState(() => selectedCategory = value),
                   ),
                 ),
@@ -174,20 +207,22 @@ class _SellScreenState extends State<SellScreen> {
               const SizedBox(height: 15),
 
               // Condition Field
-              const Text("Condition", style: TextStyle(color: Colors.deepPurple, fontWeight: FontWeight.bold)),
+              Text("Condition", style: TextStyle(color: deepPurpleTheme, fontWeight: FontWeight.bold)),
               const SizedBox(height: 5),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: fieldColor,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade400),
+                  border: Border.all(color: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade400),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: selectedCondition,
+                    dropdownColor: cardBackground,
+                    style: TextStyle(color: textColor),
                     isExpanded: true,
-                    items: conditions.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                    items: conditions.map((c) => DropdownMenuItem(value: c, child: Text(c, style: TextStyle(color: textColor)))).toList(),
                     onChanged: (value) => setState(() => selectedCondition = value),
                   ),
                 ),
@@ -195,30 +230,34 @@ class _SellScreenState extends State<SellScreen> {
               const SizedBox(height: 15),
 
               // Price Field
-              const Text("Item Price (RM)", style: TextStyle(color: Colors.deepPurple, fontWeight: FontWeight.bold)),
+              Text("Item Price (RM)", style: TextStyle(color: deepPurpleTheme, fontWeight: FontWeight.bold)),
               const SizedBox(height: 5),
               TextField(
                 controller: priceController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
+                style: TextStyle(color: textColor),
+                decoration: InputDecoration(
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: fieldColor,
                   hintText: "5.00",
-                  border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
+                  hintStyle: const TextStyle(color: Colors.grey),
+                  border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
                 ),
               ),
               const SizedBox(height: 15),
               // Description Field
-              const Text("Description", style: TextStyle(color: Colors.deepPurple, fontWeight: FontWeight.bold)),
+              Text("Description", style: TextStyle(color: deepPurpleTheme, fontWeight: FontWeight.bold)),
               const SizedBox(height: 5),
               TextField(
                 controller: descriptionController,
                 maxLines: 4,
-                decoration: const InputDecoration(
+                style: TextStyle(color: textColor),
+                decoration: InputDecoration(
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: fieldColor,
                   hintText: "Popia carbonara homemade...",
-                  border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
+                  hintStyle: const TextStyle(color: Colors.grey),
+                  border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
                 ),
               ),
               const SizedBox(height: 25),
@@ -238,7 +277,6 @@ class _SellScreenState extends State<SellScreen> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text("Uploading listing...")),
                     );
-
                     try {
                       // Pass inputs along with image data (if selected)
                       await addProductToFirestore(
@@ -249,7 +287,6 @@ class _SellScreenState extends State<SellScreen> {
                         description: descriptionController.text.trim(),
                         imageFile: _pickedImage,
                       );
-
                       // Clear fields and selected image upon success
                       nameController.clear();
                       priceController.clear();
@@ -257,7 +294,6 @@ class _SellScreenState extends State<SellScreen> {
                       setState(() {
                         _pickedImage = null;
                       });
-
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text("Listing published successfully!")),
                       );
@@ -268,7 +304,7 @@ class _SellScreenState extends State<SellScreen> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple,
+                    backgroundColor: deepPurpleTheme,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 15),
                   ),
@@ -285,16 +321,17 @@ class _SellScreenState extends State<SellScreen> {
 
   // Local helper method to handle writing data directly to Firestore
   Future<void> addProductToFirestore({
-  required String name,
-  required String category,
-  required String condition,
-  required String price,
-  required String description,
-  File? imageFile,
-}) async {
-  // Grab the current user's ID safely
-  final String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    required String name,
+    required String category,
+    required String condition,
+    required String price,
+    required String description,
+    File? imageFile,
+  }) async {
+    // Grab the current user's ID safely
+    final String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
+<<<<<<< HEAD
   await FirebaseFirestore.instance.collection('products').add({
     'name': name,
     'category': category,
@@ -306,4 +343,17 @@ class _SellScreenState extends State<SellScreen> {
     'sellerId': currentUserId, // <--- Saves who uploaded it, but doesn't restrict home screen visibility!
   });
 }
+=======
+    await FirebaseFirestore.instance.collection('products').add({
+      'name': name,
+      'category': category,
+      'condition': condition,
+      'price': 'RM $price',
+      'description': description,
+      'image': 'assets/images/google.png', 
+      'createdAt': FieldValue.serverTimestamp(),
+      'sellerId': currentUserId, // <--- Saves who uploaded it, but doesn't restrict home screen visibility!
+    });
+  }
+>>>>>>> f28a5c122a510d5eafb351cc5a47785079775c4a
 }

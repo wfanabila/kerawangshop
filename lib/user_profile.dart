@@ -1,35 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'profile_provider.dart';
 import 'package:kerawangshop/faq.dart';
 import 'setting.dart'; 
 import 'my_purchases.dart';
+import 'items_liked.dart';
+import 'contact_us.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:get/get.dart';
 import 'login.dart';
+import 'cart_screen.dart';
+import 'theme_provider.dart';
 
-// for pfp updates
-class UserProfilePage extends StatefulWidget {
+class UserProfilePage extends ConsumerStatefulWidget {
   const UserProfilePage({super.key});
 
   @override
-  State<UserProfilePage> createState() => _UserProfilePageState();
+  ConsumerState<UserProfilePage> createState() => _UserProfilePageState();
 }
 
-class _UserProfilePageState extends State<UserProfilePage> {
-  String pfpPath = 'assets/images/pfp1.jpg';
-
+class _UserProfilePageState extends ConsumerState<UserProfilePage> {
   final User? currentUser = FirebaseAuth.instance.currentUser;
-
-  // function whenever want to update the pfp
-  void updateProfileImage(String newPath) {
-    setState(() {
-      pfpPath = newPath;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
-    const Color primaryPurple = Color(0xFF7B2FF7);
+    final isDarkMode = ref.watch(themeProvider);
+    final Color primaryPurple = isDarkMode ? const Color(0xFF1E163A) : const Color(0xFF7B2FF7);
+    final Color contentBackground = isDarkMode ? const Color(0xFF120A2A) : Colors.white;
+    final Color cardBackground = isDarkMode ? const Color(0xFF221A4A) : Colors.white;
+    final Color textColor = isDarkMode ? Colors.white : Colors.black87;
+    
+    final liveProfile = ref.watch(profileProvider);
 
     return Scaffold(
       backgroundColor: primaryPurple,
@@ -46,45 +48,48 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Container(
+                        Container(
                             margin: const EdgeInsets.all(4),
-                            child: IconButton(
-                              icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
-                              onPressed: () {},
-                            ),
-                          ),
+                            // child: IconButton(
+                            //   icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
+                            //   onPressed: () => Navigator.pop(context),
+                            // ),
+                        ),
                           Row(
-                            // right side header (cart)
                             children: [
                               IconButton(
-                                icon: const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 26),
-                                onPressed: () {},
+                               icon: const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 26),
+                                onPressed: () {
+                                  Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const CartScreen()),
+  );
+                                },
                               ),
                             ],
                           )
-                        ],
+            ],
                       ),
                     ),
-                    // Profile avatar
                     Container(
                       decoration: BoxDecoration(
-                        shape: BoxShape.circle,
+                     shape: BoxShape.circle,
                         border: Border.all(color: Colors.white.withOpacity(0.6), width: 3),
                       ),
                       child: CircleAvatar(
-                        radius: 54,
+                   radius: 54,
                         backgroundColor: Colors.white,
-                        backgroundImage: AssetImage(pfpPath),
+                        backgroundImage: AssetImage(liveProfile.pfpPath),
                       ),
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      currentUser?.displayName ?? 'User',
-                      style: TextStyle(
+                       liveProfile.name.isNotEmpty ? liveProfile.name : (currentUser?.displayName ?? 'User'),
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
@@ -93,7 +98,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      currentUser?.email ?? 'No Email Provided',
+                      liveProfile.email.isNotEmpty ?
+                      liveProfile.email : (currentUser?.email ?? 'No Email Provided'),
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.85),
                         fontSize: 14,
@@ -104,80 +110,88 @@ class _UserProfilePageState extends State<UserProfilePage> {
               ),
             ),
 
-            // main content body
             Container(
               margin: const EdgeInsets.only(top: 360),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
+              decoration: BoxDecoration(
+                color: contentBackground,
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(40),
                   topRight: Radius.circular(40),
-                ),
+               ),
               ),
-
-              // items liked, my purchases
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25.0),
                 child: Column(
                   children: [
-                    Transform.translate(
+                   Transform.translate(
                       offset: const Offset(0, -35),
                       child: Row(
-                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
+                      children: [
                           _buildQuickActionButton(
-                          Icons.favorite,
-                          'Items Liked',
-                          primaryPurple,
-                          () {},
-                        ),
-                        const SizedBox(width: 10),
-                        _buildQuickActionButton(
-                          Icons.hourglass_bottom,
-                          'My Purchases',
-                          primaryPurple,
-                          () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const MyPurchasesPage()),
-                            );
-                          },
-                        ),
-                        
-                        ],
+                            Icons.favorite,
+                            'Items Liked',
+                            isDarkMode ? const Color(0xFF7B2FF7) : primaryPurple,
+                            cardBackground,
+                            textColor,
+                            () {
+                              Navigator.push(
+                      context,
+                                MaterialPageRoute(builder: (context) => const ItemsLikedPage()),
+                              );
+},
+                          ),
+                          const SizedBox(width: 10),
+                          _buildQuickActionButton(
+                            Icons.hourglass_bottom,
+                            'My Purchases',
+                            isDarkMode ? const Color(0xFF7B2FF7) : primaryPurple,
+                            cardBackground,
+                            textColor,
+                            () {
+                               Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const MyPurchasesPage()),
+                               );
+                            },
+                          ),
+],
                       ),
                     ),
 
-                    // menu list
                     Transform.translate(
                       offset: const Offset(0, -8),
                       child: Column(
                         children: [
-                          _buildMenuListTile(Icons.settings_outlined, 'Setting', primaryPurple, () {
+                          _buildMenuListTile(Icons.settings_outlined, 'Setting', isDarkMode ? const Color(0xFF7B2FF7) : primaryPurple, cardBackground, textColor, () {
                             Navigator.push(
-                              context,
+                               context,
                               MaterialPageRoute(builder: (context) => const SettingsPage()),
                             );
                           }),
-                          _buildMenuListTile(Icons.quiz_outlined, 'FAQ', primaryPurple, () {
+                          _buildMenuListTile(Icons.quiz_outlined, 'FAQ', isDarkMode ? const Color(0xFF7B2FF7) : primaryPurple, cardBackground, textColor, () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const FAQPage()),
+                               MaterialPageRoute(builder: (context) => const FAQPage()),
                             );
                           }),
-                          _buildMenuListTile(Icons.email_outlined, 'Contact Us', primaryPurple, () {}),
+                          
+                          _buildMenuListTile(Icons.email_outlined, 'Contact Us', isDarkMode ? const Color(0xFF7B2FF7) : primaryPurple, cardBackground, textColor, () {
+                            Navigator.push(
+                              context,
+                               MaterialPageRoute(builder: (context) => const ContactUsPage()),
+                            );
+                          }),
                           const SizedBox(height: 10),
-                          // Log Out
                           TextButton.icon(
                             onPressed: () async {
-                              try {
+                               try {
                                 await FirebaseAuth.instance.signOut();
                                 await GoogleSignIn().signOut();
-                                Get.snackbar(
+                              Get.snackbar(
                                   "Logged Out",
                                   "Successfully logged out of your account",
-                                  backgroundColor: Colors.amber,
+                              backgroundColor: Colors.amber,
                                   colorText: Colors.black,
                                 );
                                 Get.offAll(() => const Login());   
@@ -192,11 +206,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
                             },
                             icon: Icon(Icons.logout, color: Colors.grey[500], size: 20),
                             label: Text(
-                              'Log Out',
+                             'Log Out',
                               style: TextStyle(
                                 color: Colors.grey[500],
-                                fontSize: 15,
+                                 fontSize: 15,
                                 fontWeight: FontWeight.w500,
+                                // Correcting layout overflow warnings shown at screen bottom
                               ),
                             ),
                           ),
@@ -205,7 +220,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                       ),
                     ),
                   ],
-                ),
+                  ),
               ),
             ),
           ],
@@ -214,19 +229,18 @@ class _UserProfilePageState extends State<UserProfilePage> {
     );
   }
 
-  // items liked, my purchases
-  Widget _buildQuickActionButton(IconData icon, String label, Color iconColor, VoidCallback onTap) {
+  Widget _buildQuickActionButton(IconData icon, String label, Color iconColor, Color backgroundColor, Color textColor, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(20), // Keeps the ripple effect matching the container shape
+      borderRadius: BorderRadius.circular(20),
       child: Container(
         width: 115,
         height: 80,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: backgroundColor,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
-            BoxShadow(
+          BoxShadow(
               color: Colors.black.withOpacity(0.08),
               blurRadius: 14,
               offset: const Offset(0, 6),
@@ -234,16 +248,16 @@ class _UserProfilePageState extends State<UserProfilePage> {
           ],
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, color: iconColor, size: 38),
             const SizedBox(height: 6),
             Text(
               label,
-              style: const TextStyle(
-                fontSize: 13,
+              style: TextStyle(
+              fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: Colors.black87,
+                color: textColor,
               ),
               textAlign: TextAlign.center,
             ),
@@ -253,18 +267,17 @@ class _UserProfilePageState extends State<UserProfilePage> {
     );
   }
 
-  // menu list
-  Widget _buildMenuListTile(IconData icon, String title, Color purpleTheme, VoidCallback onTap) {
+  Widget _buildMenuListTile(IconData icon, String title, Color purpleTheme, Color backgroundColor, Color textColor, VoidCallback onTap) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12), // space between each list
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: backgroundColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.grey.withOpacity(0.12)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.03),
-            blurRadius: 6,
+             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
         ],
@@ -277,13 +290,13 @@ class _UserProfilePageState extends State<UserProfilePage> {
         ),
         title: Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 15,
-            color: Colors.black87,
+            color: textColor,
           ),
         ),
-        trailing: Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey[400]),
+         trailing: Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey[400]),
         onTap: onTap,
       ),
     );

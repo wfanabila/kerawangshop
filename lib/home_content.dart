@@ -3,9 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'products_provider.dart';
 import 'product_detail_screen.dart';
 import 'cart_screen.dart';
+<<<<<<< HEAD
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'sell_screen.dart';
+=======
+import 'theme_provider.dart';
+>>>>>>> f28a5c122a510d5eafb351cc5a47785079775c4a
 
 class HomeContent extends ConsumerStatefulWidget {
   const HomeContent({super.key});
@@ -17,45 +21,65 @@ class HomeContent extends ConsumerStatefulWidget {
 class _HomeContentState extends ConsumerState<HomeContent> {
   String selectedCategory = "All";
   String searchQuery = "";
-
   @override
   Widget build(BuildContext context) {
     final productsAsync = ref.watch(productsStreamProvider);
+<<<<<<< HEAD
     final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+=======
+    final isDarkMode = ref.watch(themeProvider);
+
+    final Color backgroundTint = isDarkMode ? const Color(0xFF120A2A) : const Color(0xFFF7F5FF);
+    final Color cardBackground = isDarkMode ? const Color(0xFF221A4A) : Colors.white;
+    final Color textColor = isDarkMode ? Colors.white : Colors.black87;
+    final Color purpleTheme = isDarkMode ? const Color(0xFF7B2FF7) : const Color(0xFF7B2FF7);
+    final Color fieldColor = isDarkMode ? const Color(0xFF1E163A) : Colors.white;
+>>>>>>> f28a5c122a510d5eafb351cc5a47785079775c4a
 
     return Scaffold(
+      backgroundColor: backgroundTint,
       body: Container(
-        color: const Color(0xFFF7F5FF),
+        color: backgroundTint,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              SizedBox(height: 60),
+              const SizedBox(height: 60),
               Row(
                 children: [
                   Expanded(
                     child: TextField(
                       onChanged: (value) {setState(() {searchQuery = value;});},
+                      style: TextStyle(color: textColor),
                       decoration: InputDecoration(
+                        filled: true,
+                        fillColor: fieldColor,
                         hintText: "Search products...",
-                        prefixIcon: const Icon(Icons.search),
+                        hintStyle: TextStyle(color: isDarkMode ? Colors.white60 : Colors.grey),
+                        prefixIcon: Icon(Icons.search, color: isDarkMode ? Colors.white70 : Colors.grey),
                         contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(25),
-                          borderSide: const BorderSide(color: Color(0xFF7B2FF7), width: 1.5),
+                          borderSide: BorderSide(color: purpleTheme, width: 1.5),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Color(0xFF7B2FF7), width: 2),
+                          borderSide: BorderSide(color: purpleTheme, width: 2),
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 10),
-                  IconButton(icon: const Icon(Icons.shopping_cart_outlined, color: Color(0xFF7B2FF7)),iconSize: 28,onPressed: () {Navigator.push(
-                  context,
+                  IconButton(
+                    icon: Icon(Icons.shopping_cart_outlined, color: purpleTheme),
+                    iconSize: 28,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
                         MaterialPageRoute(builder: (context) => const CartScreen()),
-                      );},),
+                      );
+                    },
+                  ),
                 ],
               ),
               const SizedBox(height: 20),
@@ -64,12 +88,12 @@ class _HomeContentState extends ConsumerState<HomeContent> {
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: [
-                    categoryChip("Stationary"),
-                    categoryChip("Fashion"),
-                    categoryChip("Food & Drinks"),
-                    categoryChip("Beauty & Health"),
-                    categoryChip("Electronics"),
-                    categoryChip("Others"),
+                    categoryChip("Stationary", isDarkMode),
+                    categoryChip("Fashion", isDarkMode),
+                    categoryChip("Food & Drinks", isDarkMode),
+                    categoryChip("Beauty & Health", isDarkMode),
+                    categoryChip("Electronics", isDarkMode),
+                    categoryChip("Others", isDarkMode),
                   ],
                 ),
               ),
@@ -77,14 +101,13 @@ class _HomeContentState extends ConsumerState<HomeContent> {
                 child: productsAsync.when(
                   data: (allProducts) {
                     final filteredProducts = allProducts.where((product) {
-                      final matchesCategory = selectedCategory == "All" || 
+                      final matchesCategory = selectedCategory == "All" ||
                           (product['category'] ?? '').toLowerCase() == selectedCategory.toLowerCase();
                       final matchesSearch = (product['name'] ?? '').toLowerCase().contains(searchQuery.toLowerCase());
                       return matchesCategory && matchesSearch;
                     }).toList();
-
                     if (filteredProducts.isEmpty) {
-                      return const Center(child: Text("No products found."));
+                      return Center(child: Text("No products found.", style: TextStyle(color: textColor)));
                     }
 
                     return GridView.builder(
@@ -101,6 +124,7 @@ class _HomeContentState extends ConsumerState<HomeContent> {
                         final bool isMyProduct = product['sellerId'] == currentUserId && currentUserId != null;
 
                         return Card(
+                          color: cardBackground,
                           elevation: 3,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -135,7 +159,7 @@ class _HomeContentState extends ConsumerState<HomeContent> {
                                     children: [
                                       Text(
                                         product['name'] ?? '',
-                                        style: const TextStyle(fontWeight: FontWeight.bold),
+                                        style: TextStyle(fontWeight: FontWeight.bold, color: textColor),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -180,7 +204,7 @@ class _HomeContentState extends ConsumerState<HomeContent> {
                     );
                   },
                   loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (err, stack) => Center(child: Text("Error: $err")),
+                  error: (err, stack) => Center(child: Text("Error: $err", style: TextStyle(color: textColor))),
                 ),
               ),
             ],
@@ -190,6 +214,7 @@ class _HomeContentState extends ConsumerState<HomeContent> {
     );
   }
 
+<<<<<<< HEAD
   void _confirmDelete(BuildContext context, String? docId) {
     if (docId == null) return;
     showDialog(
@@ -215,7 +240,11 @@ class _HomeContentState extends ConsumerState<HomeContent> {
   }
 
   Widget categoryChip(String title) {
+=======
+  Widget categoryChip(String title, bool isDarkMode) {
+>>>>>>> f28a5c122a510d5eafb351cc5a47785079775c4a
     final isSelected = selectedCategory == title;
+    final Color purpleTheme = isDarkMode ? const Color(0xFF7B2FF7) : const Color(0xFF7B2FF7);
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: ChoiceChip(
@@ -226,17 +255,16 @@ class _HomeContentState extends ConsumerState<HomeContent> {
             selectedCategory = (selectedCategory == title) ? "All" : title;
           });
         },
-
         labelStyle: TextStyle(
-          color: isSelected ? Colors.white : Colors.black87,
+          color: isSelected ? Colors.white : (isDarkMode ? Colors.white70 : Colors.black87),
           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
         ),
-        selectedColor: const Color(0xFF7B2FF7),
-        backgroundColor: Color(0xFFEDE8FF),
+        selectedColor: purpleTheme,
+        backgroundColor: isDarkMode ? const Color(0xFF221A4A) : const Color(0xFFEDE8FF),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
           side: BorderSide(
-            color: isSelected ? const Color(0xFF7B2FF7) : const Color(0xFF7B2FF7),
+            color: purpleTheme,
             width: 1.0,
           ),
         ),

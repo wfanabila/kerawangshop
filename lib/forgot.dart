@@ -1,23 +1,29 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kerawangshop/login.dart';
+import 'theme_provider.dart';
 
-class Forgot extends StatefulWidget {
+class Forgot extends ConsumerStatefulWidget {
   const Forgot({Key? key}) : super(key: key);
 
   @override
-  State<Forgot> createState() => _ForgotState();
+  ConsumerState<Forgot> createState() => _ForgotState();
 }
 
-class _ForgotState extends State<Forgot> {
+class _ForgotState extends ConsumerState<Forgot> {
   TextEditingController email = TextEditingController();
-
   reset() async {
     await FirebaseAuth.instance.sendPasswordResetEmail(email: email.text);
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = ref.watch(themeProvider);
+    final Color containerBackground = isDarkMode ? const Color(0xFF120A2A) : Colors.white;
+    final Color textColor = isDarkMode ? Colors.white : Colors.black87;
+    final Color fieldColor = isDarkMode ? const Color(0xFF1E163A) : const Color(0xFFEDE8FF);
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -85,9 +91,9 @@ class _ForgotState extends State<Forgot> {
             Expanded(
               child: Container(
                 width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
+                decoration: BoxDecoration(
+                  color: containerBackground,
+                  borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(60),
                     topRight: Radius.circular(60),
                   ),
@@ -104,7 +110,7 @@ class _ForgotState extends State<Forgot> {
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: Container(
                             decoration: BoxDecoration(
-                              color: const Color(0xFFEDE8FF),
+                              color: fieldColor,
                               border: Border.all(color: const Color(0xFF751BF1)),
                               borderRadius: BorderRadius.circular(12),
                               boxShadow: const [
@@ -119,10 +125,12 @@ class _ForgotState extends State<Forgot> {
                               padding: const EdgeInsets.symmetric(horizontal: 20),
                               child: TextField(
                                 controller: email,
-                                decoration: const InputDecoration(
+                                style: TextStyle(color: textColor),
+                                decoration: InputDecoration(
                                   hintText: "Email",
+                                  hintStyle: TextStyle(color: isDarkMode ? Colors.white60 : Colors.grey),
                                   border: InputBorder.none,
-                                  contentPadding: EdgeInsets.symmetric(vertical: 15),
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 15),
                                 ),
                               ),
                             ),
