@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class UserProfile {
@@ -43,11 +45,14 @@ class UserProfile {
       'pfpPath': pfpPath,
     };
   }
+
+  bool get hasCustomPicture => pfpPath.startsWith('http');
 }
 
 class ProfileNotifier extends StateNotifier<UserProfile> {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
+  final _storage = FirebaseStorage.instance;
 
   ProfileNotifier()
       : super(UserProfile(
@@ -95,10 +100,33 @@ class ProfileNotifier extends StateNotifier<UserProfile> {
       rethrow;
     }
   }
+Future<void> updateProfilePicture(File imageFile) async {
+    final User? user = _auth.currentUser;
+    if (user == null) throw Exception("No user logged in");
 
-  // ==========================================
-  // NEW: SECURE FIREBASE RE-AUTHENTICATION METHOD
-  // ==========================================
+    try {
+      final ref = _storage.ref().child('profile_pictures').child('${user.uid}.jpg');
+
+      await ref.putFile(
+        imageFile,
+        SettableMetadata(contentType: 'image/jpeg'),
+      );
+
+      final downloadUrl = await ref.getDownloadURL();
+
+      await _firestore
+          .collection('users')
+          .doc(user.uid)
+          .set({'pfpPath': downloadUrl}, SetOptions(merge: true));
+
+    
+      state = state.copyWith(pfpPath: downloadUrl);
+    } catch (e) {
+      print("Profile picture upload error: $e");
+      rethrow;
+    }
+  }
+
   Future<void> changePassword({
     required String currentPassword,
     required String newPassword,
@@ -108,16 +136,13 @@ class ProfileNotifier extends StateNotifier<UserProfile> {
       throw Exception("No user logged in.");
     }
 
-    // Create credential object using user's active email and the password they typed
     AuthCredential credential = EmailAuthProvider.credential(
       email: user.email!,
       password: currentPassword,
     );
 
-    // This forces Firebase to verify if the current password matches the cloud records
     await user.reauthenticateWithCredential(credential);
 
-    // If re-authentication passes without throwing an error, update the password
     await user.updatePassword(newPassword);
   }
 }

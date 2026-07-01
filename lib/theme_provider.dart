@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ThemeNotifier extends StateNotifier<bool> {
-  ThemeNotifier() : super(false); // Default is Light Mode
+  ThemeNotifier() : super(false);
 
   void toggleTheme(bool value) {
     state = value;

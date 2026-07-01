@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'profile_provider.dart';
 import 'change_password.dart';
 import 'theme_provider.dart';
@@ -15,6 +17,9 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _phoneController;
+
+  final ImagePicker _picker = ImagePicker();
+  bool _isUploadingImage = false;
 
   @override
   void initState() {
@@ -32,6 +37,91 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     _emailController.dispose();
     _phoneController.dispose();
     super.dispose();
+  }
+
+  Future<void> _showPictureSourceSheet() async {
+    final isDarkMode = ref.read(themeProvider);
+    final Color primaryPurple = isDarkMode ? const Color(0xFF7B2FF7) : const Color(0xFF7B2CBF);
+    final Color sheetBackground = isDarkMode ? const Color(0xFF221A4A) : Colors.white;
+    final Color textColor = isDarkMode ? Colors.white : Colors.black87;
+
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      backgroundColor: sheetBackground,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 12),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: textColor.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                leading: Icon(Icons.photo_camera_outlined, color: primaryPurple),
+                title: Text('Take a photo', style: TextStyle(color: textColor, fontWeight: FontWeight.w600)),
+                onTap: () => Navigator.pop(context, ImageSource.camera),
+              ),
+              ListTile(
+                leading: Icon(Icons.photo_library_outlined, color: primaryPurple),
+                title: Text('Choose from gallery', style: TextStyle(color: textColor, fontWeight: FontWeight.w600)),
+                onTap: () => Navigator.pop(context, ImageSource.gallery),
+              ),
+              const SizedBox(height: 12),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (source == null) return;
+    await _pickAndUploadImage(source);
+  }
+
+  Future<void> _pickAndUploadImage(ImageSource source) async {
+    try {
+      final XFile? picked = await _picker.pickImage(
+        source: source,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+      if (picked == null) return;
+
+      setState(() => _isUploadingImage = true);
+
+      await ref.read(profileProvider.notifier).updateProfilePicture(File(picked.path));
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile picture updated')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update picture: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isUploadingImage = false);
+    }
+  }
+
+  ImageProvider _resolveProfileImage(String pfpPath) {
+    if (pfpPath.startsWith('http')) {
+      return NetworkImage(pfpPath);
+    }
+    return AssetImage(pfpPath);
   }
 
   @override
@@ -84,16 +174,32 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                     children: [
                       CircleAvatar(
                         radius: 58,
-                        backgroundImage: AssetImage(profile.pfpPath),
+                        backgroundImage: _resolveProfileImage(profile.pfpPath),
                         backgroundColor: Colors.grey[200],
+                        child: _isUploadingImage
+                            ? Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.black.withOpacity(0.45),
+                                ),
+                                child: const Center(
+                                  child: SizedBox(
+                                    width: 28,
+                                    height: 28,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.5,
+                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : null,
                       ),
                       Positioned(
                         bottom: 2,
                         right: 2,
                         child: GestureDetector(
-                          onTap: () {
-                            // Change PFP handling
-                          },
+                          onTap: _isUploadingImage ? null : _showPictureSourceSheet,
                           child: Container(
                             width: 32,
                             height: 32,
