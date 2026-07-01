@@ -2,24 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'cart_provider.dart';
 import 'favorites_provider.dart';
+import 'theme_provider.dart';
 
 class ProductDetailScreen extends ConsumerWidget {
   final Map<String, dynamic> product;
-
   const ProductDetailScreen({super.key, required this.product});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isDarkMode = ref.watch(themeProvider);
+    final Color backgroundTint = isDarkMode ? const Color(0xFF120A2A) : const Color(0xFFF7F5FF);
+    final Color cardBackground = isDarkMode ? const Color(0xFF221A4A) : Colors.white;
+    final Color textColor = isDarkMode ? Colors.white : Colors.black;
+    final Color purpleTheme = isDarkMode ? const Color(0xFF7B2FF7) : Colors.deepPurple;
+
     final favoriteList = ref.watch(favoritesProvider);
     final isLiked = favoriteList.any((item) => item['name'] == product['name']);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F5FF),
+      backgroundColor: backgroundTint,
       appBar: AppBar(
-        title: Text(product['name'] ?? 'Product Details'),
+        title: Text(product['name'] ?? 'Product Details', style: TextStyle(color: textColor)),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        foregroundColor: Colors.black,
+        foregroundColor: textColor,
+        iconTheme: IconThemeData(color: textColor),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -38,7 +45,7 @@ class ProductDetailScreen extends ConsumerWidget {
                 children: [
                   Text(
                     product['name'] ?? '',
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: textColor),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -47,18 +54,18 @@ class ProductDetailScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   Chip(
-                    label: Text(product['category'] ?? 'General'),
-                    backgroundColor: Colors.deepPurple.shade50,
+                    label: Text(product['category'] ?? 'General', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
+                    backgroundColor: isDarkMode ? const Color(0xFF1E163A) : Colors.deepPurple.shade50,
                   ),
                   const SizedBox(height: 20),
-                  const Text(
+                  Text(
                     "Description",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.deepPurple),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: purpleTheme),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     product['description'] ?? 'No description provided.',
-                    style: const TextStyle(fontSize: 16, height: 1.5),
+                    style: TextStyle(fontSize: 16, height: 1.5, color: isDarkMode ? Colors.white70 : Colors.black87),
                   ),
                   const SizedBox(height: 100), 
                 ],
@@ -69,7 +76,7 @@ class ProductDetailScreen extends ConsumerWidget {
       ),
       bottomSheet: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-        color: Colors.white,
+        color: cardBackground,
         child: SafeArea(
           child: Row(
             children: [
@@ -78,9 +85,9 @@ class ProductDetailScreen extends ConsumerWidget {
                 height: 55,
                 width: 55,
                 decoration: BoxDecoration(
-                  color: isLiked ? Colors.red.shade50 : Colors.grey.shade50, // Changes dynamically
+                  color: isLiked ? Colors.red.shade50 : (isDarkMode ? const Color(0xFF1E163A) : Colors.grey.shade50), // Changes dynamically
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: isLiked ? Colors.red.shade200 : Colors.grey.shade200),
+                  border: Border.all(color: isLiked ? Colors.red.shade200 : (isDarkMode ? Colors.grey.shade800 : Colors.grey.shade200)),
                 ),
                 child: IconButton(
                   icon: Icon(

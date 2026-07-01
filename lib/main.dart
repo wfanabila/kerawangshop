@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 // import 'package:kerawangshop/wrapper.dart';
 // import 'package:kerawangshop/user_profile.dart';
 import 'package:kerawangshop/login.dart';
+import 'theme_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,13 +16,17 @@ void main() async {
     ),
   );
 }
-class MyApp extends StatelessWidget {
+
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDarkMode = ref.watch(themeProvider);
+
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
+      themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
       home: const Login(),
     );
   }

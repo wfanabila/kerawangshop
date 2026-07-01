@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'profile_provider.dart';
 import 'change_password.dart';
+import 'theme_provider.dart';
 
 class EditProfilePage extends ConsumerStatefulWidget {
   const EditProfilePage({super.key});
@@ -35,8 +36,14 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    const Color primaryPurple = Color(0xFF7B2CBF);
-    const Color backgroundTint = Color(0xFFF3EEFD);
+    final isDarkMode = ref.watch(themeProvider);
+    final Color primaryPurple = isDarkMode ? const Color(0xFF7B2FF7) : const Color(0xFF7B2CBF);
+    final Color backgroundTint = isDarkMode ? const Color(0xFF120A2A) : const Color(0xFFF3EEFD);
+    final Color cardBackground = isDarkMode ? const Color(0xFF221A4A) : Colors.white;
+    final Color textColor = isDarkMode ? Colors.white : const Color(0xFF2D2D2D);
+    final Color valueColor = isDarkMode ? Colors.white : Colors.black87;
+    final Color labelColor = isDarkMode ? Colors.white60 : Colors.black54;
+
     final profile = ref.watch(profileProvider);
 
     return Scaffold(
@@ -45,12 +52,12 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: primaryPurple, size: 26),
+          icon: Icon(Icons.arrow_back, color: primaryPurple, size: 26),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Edit Profile',
-          style: TextStyle(color: Color(0xFF2D2D2D), fontSize: 28, fontWeight: FontWeight.bold),
+          style: TextStyle(color: textColor, fontSize: 28, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
@@ -64,9 +71,9 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                 minHeight: MediaQuery.of(context).size.height - 180,
               ),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
+              decoration: BoxDecoration(
+                color: cardBackground,
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(40),
                   topRight: Radius.circular(40),
                 ),
@@ -90,27 +97,27 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                           child: Container(
                             width: 32,
                             height: 32,
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
+                            decoration: BoxDecoration(
+                              color: isDarkMode ? const Color(0xFF1E163A) : Colors.white,
                               shape: BoxShape.circle,
-                              boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+                              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
                             ),
-                            child: const Icon(Icons.add, color: Colors.black87, size: 20),
+                            child: Icon(Icons.add, color: isDarkMode ? Colors.white : Colors.black87, size: 20),
                           ),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 40),
-                  _buildEditField(label: 'Name', controller: _nameController, trailingIcon: Icons.edit_outlined, purpleTheme: primaryPurple),
+                  _buildEditField(label: 'Name', controller: _nameController, trailingIcon: Icons.edit_outlined, purpleTheme: primaryPurple, textCol: valueColor, labelCol: labelColor),
                   const SizedBox(height: 14),
-                  _buildEditField(label: 'Email', controller: _emailController, trailingIcon: Icons.mail_outline_rounded, purpleTheme: primaryPurple, keyboardType: TextInputType.emailAddress),
+                  _buildEditField(label: 'Email', controller: _emailController, trailingIcon: Icons.mail_outline_rounded, purpleTheme: primaryPurple, keyboardType: TextInputType.emailAddress, textCol: valueColor, labelCol: labelColor),
                   const SizedBox(height: 14),
-                  _buildEditField(label: 'Phone', controller: _phoneController, trailingIcon: Icons.phone_outlined, purpleTheme: primaryPurple, keyboardType: TextInputType.phone),
+                  _buildEditField(label: 'Phone', controller: _phoneController, trailingIcon: Icons.phone_outlined, purpleTheme: primaryPurple, keyboardType: TextInputType.phone, textCol: valueColor, labelCol: labelColor),
                   const SizedBox(height: 30),
                   Container(
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.withOpacity(0.40)),
+                      border: Border.all(color: isDarkMode ? Colors.white10 : Colors.grey.withOpacity(0.40)),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: ListTile(
@@ -118,10 +125,10 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                       leading: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(color: primaryPurple.withOpacity(0.10), borderRadius: BorderRadius.circular(10)),
-                        child: const Icon(Icons.lock_outline_rounded, color: primaryPurple, size: 24),
+                        child: const Icon(Icons.lock_outline_rounded, color: Colors.white, size: 24),
                       ),
-                      title: const Text('Change Password?', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Colors.black87)),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 15, color: primaryPurple),
+                      title: Text('Change Password?', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: valueColor)),
+                      trailing: Icon(Icons.arrow_forward_ios, size: 15, color: primaryPurple),
                       onTap: () {
                         Navigator.push(
                           context,
@@ -137,7 +144,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         ),
       ),
       bottomNavigationBar: Container(
-        color: Colors.white,
+        color: cardBackground,
         padding: EdgeInsets.only(
           left: 20, right: 20, top: 12,
           bottom: MediaQuery.of(context).padding.bottom + 20,
@@ -149,10 +156,10 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                 onPressed: () => Navigator.pop(context),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  side: const BorderSide(color: Color(0xFFCCCCCC), width: 1.5),
+                  side: BorderSide(color: isDarkMode ? Colors.white24 : const Color(0xFFCCCCCC), width: 1.5),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                 ),
-                child: const Text('Discard', style: TextStyle(color: Colors.black87, fontSize: 16, fontWeight: FontWeight.w600)),
+                child: Text('Discard', style: TextStyle(color: valueColor, fontSize: 16, fontWeight: FontWeight.w600)),
               ),
             ),
             const SizedBox(width: 14),
@@ -186,11 +193,13 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     required TextEditingController controller,
     required IconData trailingIcon,
     required Color purpleTheme,
+    required Color textCol,
+    required Color labelCol,
     TextInputType keyboardType = TextInputType.text,
   }) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.withOpacity(0.50)),
+        border: Border.all(color: textCol.withOpacity(0.30)),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Padding(
@@ -201,18 +210,18 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black54)),
+                  Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: labelCol)),
                   const SizedBox(height: 4),
                   TextField(
                     controller: controller,
                     keyboardType: keyboardType,
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.black87),
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: textCol),
                     decoration: const InputDecoration(isDense: true, contentPadding: EdgeInsets.zero, border: InputBorder.none),
                   ),
                 ],
               ),
             ),
-            Icon(trailingIcon, color: Colors.grey[400], size: 22),
+            Icon(trailingIcon, color: labelCol.withOpacity(0.7), size: 22),
           ],
         ),
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'favorites_provider.dart';
 import 'product_detail_screen.dart';
+import 'theme_provider.dart';
 
 class ItemsLikedPage extends ConsumerWidget {
   const ItemsLikedPage({super.key});
@@ -9,21 +10,26 @@ class ItemsLikedPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final likedItems = ref.watch(favoritesProvider);
-    const Color primaryPurple = Color(0xFF7B2FF7);
+    final isDarkMode = ref.watch(themeProvider);
+    
+    final Color primaryPurple = isDarkMode ? const Color(0xFF7B2FF7) : const Color(0xFF7B2FF7);
+    final Color backgroundTint = isDarkMode ? const Color(0xFF120A2A) : const Color(0xFFF7F5FF);
+    final Color cardBackground = isDarkMode ? const Color(0xFF221A4A) : Colors.white;
+    final Color textColor = isDarkMode ? Colors.white : Colors.black87;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F5FF),
+      backgroundColor: backgroundTint,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: primaryPurple, size: 28),
+          icon: Icon(Icons.arrow_back, color: primaryPurple, size: 28),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           "Items Liked",
           style: TextStyle(
-            color: Colors.black87,
+            color: textColor,
             fontWeight: FontWeight.bold,
             fontSize: 20,
           ),
@@ -50,7 +56,6 @@ class ItemsLikedPage extends ConsumerWidget {
                 itemBuilder: (context, index) {
                   final item = likedItems[index];
                   final bool isOutOfStock = item['inStock'] == false || item['quantity'] == 0;
-
                   return GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -62,7 +67,7 @@ class ItemsLikedPage extends ConsumerWidget {
                     },
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: cardBackground,
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
@@ -108,7 +113,6 @@ class ItemsLikedPage extends ConsumerWidget {
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           color: Colors.white,
-                                          
                                           fontSize: 18,
                                           letterSpacing: 1,
                                         ),
@@ -140,7 +144,6 @@ class ItemsLikedPage extends ConsumerWidget {
                               ],
                             ),
                           ),
-                          
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
                             child: Column(
@@ -150,10 +153,10 @@ class ItemsLikedPage extends ConsumerWidget {
                                   item['name'] ?? '',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 15,
-                                    color: Colors.black87,
+                                    color: textColor,
                                   ),
                                 ),
                                 const SizedBox(height: 4),

@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'sell_screen.dart';
+import 'theme_provider.dart';
 
-class MyListingPage extends StatelessWidget {
+class MyListingPage extends ConsumerWidget {
   const MyListingPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    const Color primaryPurple = Color(0xFF7B2CBF);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDarkMode = ref.watch(themeProvider);
+    final Color primaryPurple = isDarkMode ? const Color(0xFF1E163A) : const Color(0xFF7B2CBF);
+    final Color backgroundTint = isDarkMode ? const Color(0xFF120A2A) : const Color(0xFFF3EFFA);
+    final Color textColor = isDarkMode ? Colors.white : Colors.black;
 
     return Scaffold(
       backgroundColor: primaryPurple,
@@ -41,9 +46,9 @@ class MyListingPage extends StatelessWidget {
               Expanded(
                 child: Container(
                   width: double.infinity,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF3EFFA),
-                    borderRadius: BorderRadius.only(
+                  decoration: BoxDecoration(
+                    color: backgroundTint,
+                    borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(25),
                       topRight: Radius.circular(25),
                     ),
@@ -58,10 +63,10 @@ class MyListingPage extends StatelessWidget {
                           children: [
                             Text(
                               "Selling",
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                              style: TextStyle(fontWeight: FontWeight.bold, color: textColor),
                             ),
-                            Text("Likes"),
-                            Text("Saves"),
+                            Text("Likes", style: TextStyle(color: isDarkMode ? Colors.white70 : Colors.black87)),
+                            Text("Saves", style: TextStyle(color: isDarkMode ? Colors.white70 : Colors.black87)),
                           ],
                         ),
                       ),
@@ -72,16 +77,17 @@ class MyListingPage extends StatelessWidget {
                       Icon(
                         Icons.shopping_cart_checkout,
                         size: 70,
-                        color: primaryPurple,
+                        color: isDarkMode ? const Color(0xFF7B2FF7) : primaryPurple,
                       ),
 
                       const SizedBox(height: 15),
 
-                      const Text(
+                      Text(
                         "Start selling today !",
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
+                          color: textColor,
                         ),
                       ),
 
@@ -89,7 +95,7 @@ class MyListingPage extends StatelessWidget {
 
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: primaryPurple,
+                          backgroundColor: isDarkMode ? const Color(0xFF7B2FF7) : primaryPurple,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),

@@ -1,25 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'theme_provider.dart';
 
-class SoldItemsPage extends StatelessWidget {
+class SoldItemsPage extends ConsumerWidget {
   const SoldItemsPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDarkMode = ref.watch(themeProvider);
     const Color purple = Color(0xFF7B2EFF);
+    final Color backgroundTint = isDarkMode ? const Color(0xFF120A2A) : const Color(0xFFF5F0FF);
+    final Color cardBackground = isDarkMode ? const Color(0xFF221A4A) : Colors.white;
+    final Color textColor = isDarkMode ? Colors.white : Colors.black;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F0FF),
+      backgroundColor: backgroundTint,
 
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF5F0FF),
+        backgroundColor: backgroundTint,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           "Sold Items",
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.deepPurple),
+    
+           icon: const Icon(Icons.arrow_back, color: Colors.deepPurple),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -29,40 +36,52 @@ class SoldItemsPage extends StatelessWidget {
         children: [
           SoldItemCard(
             productName: "Popia Carbonara",
-            buyerName: "Nabila",
+            buyerName: 
+"Nabila",
             quantity: "x3",
             price: "RM 15",
             date: "20 Sept 2025",
+            cardBackground: cardBackground,
+            textColor: textColor,
           ),
 
           SizedBox(height: 10),
 
           SoldItemCard(
             productName: "Mineral Water 500ml",
+            
             buyerName: "Nabila",
             quantity: "x2",
             price: "RM 4",
             date: "20 Sept 2025",
+            cardBackground: cardBackground,
+            textColor: textColor,
           ),
 
           SizedBox(height: 10),
 
           SoldItemCard(
             productName: "Pelam Lemak",
+            
             buyerName: "Haq",
             quantity: "x1",
             price: "RM 10",
             date: "20 Sept 2025",
+            cardBackground: cardBackground,
+            textColor: textColor,
           ),
 
           SizedBox(height: 10),
 
           SoldItemCard(
             productName: "Mini Chocojar (29g)",
+           
             buyerName: "Siti",
             quantity: "x1",
             price: "RM 1.70",
             date: "18 Sept 2025",
+            cardBackground: cardBackground,
+            textColor: textColor,
           ),
         ],
       ),
@@ -76,6 +95,8 @@ class SoldItemCard extends StatelessWidget {
   final String quantity;
   final String price;
   final String date;
+  final Color cardBackground;
+  final Color textColor;
 
   const SoldItemCard({
     super.key,
@@ -84,6 +105,8 @@ class SoldItemCard extends StatelessWidget {
     required this.quantity,
     required this.price,
     required this.date,
+    required this.cardBackground,
+    required this.textColor,
   });
 
   @override
@@ -92,7 +115,7 @@ class SoldItemCard extends StatelessWidget {
       padding: const EdgeInsets.all(10),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBackground,
         borderRadius: BorderRadius.circular(15),
       ),
 
@@ -100,23 +123,26 @@ class SoldItemCard extends StatelessWidget {
         children: [
           Container(
             width: 70,
+            
             height: 70,
             decoration: BoxDecoration(
               color: Colors.grey.shade300,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.image, size: 35),
+            child: const Icon(Icons.image, size: 35, color: Colors.grey),
           ),
 
           const SizedBox(width: 12),
 
+      
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   productName,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  style: 
+                   TextStyle(fontWeight: FontWeight.bold, color: textColor),
                 ),
 
                 Text(
@@ -124,24 +150,28 @@ class SoldItemCard extends StatelessWidget {
                   style: const TextStyle(color: Colors.grey),
                 ),
 
+         
                 const SizedBox(height: 5),
 
                 Row(
                   children: [
-                    Text(quantity),
+                    Text(quantity, style: TextStyle(color: textColor)),
 
                     const SizedBox(width: 8),
 
+              
                     Text(
                       price,
                       style: const TextStyle(
                         color: Colors.orange,
+                       
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
                 ),
               ],
+        
             ),
           ),
 
@@ -151,6 +181,7 @@ class SoldItemCard extends StatelessWidget {
               const Text(
                 "Sold",
                 style: TextStyle(
+  
                   color: Colors.green,
                   fontWeight: FontWeight.bold,
                 ),
@@ -159,6 +190,7 @@ class SoldItemCard extends StatelessWidget {
               const SizedBox(height: 5),
 
               Text(
+    
                 date,
                 style: const TextStyle(fontSize: 11, color: Colors.grey),
               ),

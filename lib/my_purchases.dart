@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'purchases_provider.dart';
 import 'product_detail_screen.dart';
+import 'theme_provider.dart';
 
 class MyPurchasesPage extends ConsumerStatefulWidget {
   const MyPurchasesPage({super.key});
@@ -13,8 +14,11 @@ class MyPurchasesPage extends ConsumerStatefulWidget {
 class _MyPurchasesPageState extends ConsumerState<MyPurchasesPage> {
   @override
   Widget build(BuildContext context) {
-    const Color primaryPurple = Color(0xFF7B2CBF);
-    const Color backgroundTint = Color(0xFFF3EEFD);
+    final isDarkMode = ref.watch(themeProvider);
+    final Color primaryPurple = isDarkMode ? const Color(0xFF7B2FF7) : const Color(0xFF7B2CBF);
+    final Color backgroundTint = isDarkMode ? const Color(0xFF120A2A) : const Color(0xFFF3EEFD);
+    final Color cardBackground = isDarkMode ? const Color(0xFF221A4A) : Colors.white;
+    final Color textColor = isDarkMode ? Colors.white : const Color(0xFF2D2D2D);
 
     final dynamicPurchases = ref.watch(purchasesProvider);
 
@@ -24,13 +28,13 @@ class _MyPurchasesPageState extends ConsumerState<MyPurchasesPage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: primaryPurple, size: 26),
+          icon: Icon(Icons.arrow_back, color: primaryPurple, size: 26),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'My Purchases',
           style: TextStyle(
-            color: Color(0xFF2D2D2D),
+            color: textColor,
             fontSize: 28,
             fontWeight: FontWeight.bold,
           ),
@@ -50,7 +54,6 @@ class _MyPurchasesPageState extends ConsumerState<MyPurchasesPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    
                     ...dynamicPurchases.map((purchase) => _buildPurchaseCard(
                           productRawData: purchase, // Pass whole map to route details
                           sellerName: purchase['seller'] ?? 'General Store',
@@ -59,6 +62,8 @@ class _MyPurchasesPageState extends ConsumerState<MyPurchasesPage> {
                           itemName: purchase['name'] ?? '',
                           price: purchase['price'] ?? 'RM0.00',
                           primaryPurple: primaryPurple,
+                          cardBackground: cardBackground,
+                          textColor: textColor,
                         )),
                     const SizedBox(height: 20),
                   ],
@@ -76,6 +81,8 @@ class _MyPurchasesPageState extends ConsumerState<MyPurchasesPage> {
     required String itemName,
     required String price,
     required Color primaryPurple,
+    required Color cardBackground,
+    required Color textColor,
   }) {
     return GestureDetector(
       onTap: () {
@@ -90,7 +97,7 @@ class _MyPurchasesPageState extends ConsumerState<MyPurchasesPage> {
         margin: const EdgeInsets.only(bottom: 15),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cardBackground,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -112,10 +119,10 @@ class _MyPurchasesPageState extends ConsumerState<MyPurchasesPage> {
                     const SizedBox(width: 6),
                     Text(
                       sellerName,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 15,
-                        color: Colors.black87,
+                        color: textColor,
                       ),
                     ),
                     const SizedBox(width: 4),
@@ -158,10 +165,10 @@ class _MyPurchasesPageState extends ConsumerState<MyPurchasesPage> {
                     children: [
                       Text(
                         itemName,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
-                          color: Colors.black87,
+                          color: textColor,
                         ),
                       ),
                       const SizedBox(height: 6),
