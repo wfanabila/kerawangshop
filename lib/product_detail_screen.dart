@@ -8,6 +8,30 @@ class ProductDetailScreen extends ConsumerWidget {
   final Map<String, dynamic> product;
   const ProductDetailScreen({super.key, required this.product});
 
+  Widget _buildProductImage(String? imagePath) {
+    if (imagePath == null || imagePath.isEmpty) {
+      return Image.asset('assets/images/shoes.png', width: double.infinity, height: 300, fit: BoxFit.cover);
+    }
+    if (imagePath.startsWith('http')) {
+      return Image.network(
+        imagePath,
+        width: double.infinity,
+        height: 300,
+        fit: BoxFit.cover,
+        loadingBuilder: (context, child, progress) {
+          if (progress == null) return child;
+          return const SizedBox(
+            height: 300,
+            child: Center(child: CircularProgressIndicator()),
+          );
+        },
+        errorBuilder: (context, error, stack) =>
+            Image.asset('assets/images/shoes.png', width: double.infinity, height: 300, fit: BoxFit.cover),
+      );
+    }
+    return Image.asset(imagePath, width: double.infinity, height: 300, fit: BoxFit.cover);
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDarkMode = ref.watch(themeProvider);
@@ -32,12 +56,7 @@ class ProductDetailScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.asset(
-              product['image'] ?? 'assets/images/shoes.png',
-              width: double.infinity,
-              height: 300,
-              fit: BoxFit.cover,
-            ),
+            _buildProductImage(product['image']),
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: Column(
@@ -54,7 +73,8 @@ class ProductDetailScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   Chip(
-                    label: Text(product['category'] ?? 'General', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
+                    label: Text(product['category'] ?? 'General',
+                        style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
                     backgroundColor: isDarkMode ? const Color(0xFF1E163A) : Colors.deepPurple.shade50,
                   ),
                   const SizedBox(height: 20),
@@ -67,7 +87,7 @@ class ProductDetailScreen extends ConsumerWidget {
                     product['description'] ?? 'No description provided.',
                     style: TextStyle(fontSize: 16, height: 1.5, color: isDarkMode ? Colors.white70 : Colors.black87),
                   ),
-                  const SizedBox(height: 100), 
+                  const SizedBox(height: 100),
                 ],
               ),
             ),
@@ -80,30 +100,29 @@ class ProductDetailScreen extends ConsumerWidget {
         child: SafeArea(
           child: Row(
             children: [
-              // like button
               Container(
                 height: 55,
                 width: 55,
                 decoration: BoxDecoration(
-                  color: isLiked ? Colors.red.shade50 : (isDarkMode ? const Color(0xFF1E163A) : Colors.grey.shade50), // Changes dynamically
+                  color: isLiked ? Colors.red.shade50 : (isDarkMode ? const Color(0xFF1E163A) : Colors.grey.shade50),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: isLiked ? Colors.red.shade200 : (isDarkMode ? Colors.grey.shade800 : Colors.grey.shade200)),
+                  border: Border.all(
+                      color: isLiked ? Colors.red.shade200 : (isDarkMode ? Colors.grey.shade800 : Colors.grey.shade200)),
                 ),
                 child: IconButton(
                   icon: Icon(
-                    isLiked ? Icons.favorite : Icons.favorite_border, 
-                    color: isLiked ? Colors.red : Colors.grey, 
+                    isLiked ? Icons.favorite : Icons.favorite_border,
+                    color: isLiked ? Colors.red : Colors.grey,
                     size: 28,
                   ),
                   onPressed: () {
                     ref.read(favoritesProvider.notifier).toggleFavorite(product);
-                    
-                    ScaffoldMessenger.of(context).clearSnackBars(); // Prevents stacking snackbars
+                    ScaffoldMessenger.of(context).clearSnackBars();
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
-                          isLiked 
-                              ? "${product['name']} removed from favorites!" 
+                          isLiked
+                              ? "${product['name']} removed from favorites!"
                               : "${product['name']} added to favorites!",
                         ),
                         duration: const Duration(seconds: 2),
@@ -112,9 +131,7 @@ class ProductDetailScreen extends ConsumerWidget {
                   },
                 ),
               ),
-              const SizedBox(width: 15), 
-              
-              // add to cart button
+              const SizedBox(width: 15),
               Expanded(
                 child: SizedBox(
                   height: 55,

@@ -1,20 +1,22 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:image_picker/image_picker.dart'; // <--- ADD THIS LINE
+import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 import 'dart:io';
 import 'home_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'theme_provider.dart';
 
-<<<<<<< HEAD
-class SellScreen extends StatefulWidget {
-  final Map<String, dynamic>? productToEdit;
-  const SellScreen({super.key, this.productToEdit});
-=======
+// ---- Cloudinary config: replace with your own values ----
+const String kCloudinaryCloudName = 'wxgjqxlr';
+const String kCloudinaryUploadPreset = 'wxgjqxlr';
+
 class SellScreen extends ConsumerStatefulWidget {
-  const SellScreen({super.key});
->>>>>>> f28a5c122a510d5eafb351cc5a47785079775c4a
+  final Map<String, dynamic>? productToEdit;
+
+  const SellScreen({super.key, this.productToEdit});
 
   @override
   ConsumerState<SellScreen> createState() => _SellScreenState();
@@ -23,12 +25,11 @@ class SellScreen extends ConsumerStatefulWidget {
 class _SellScreenState extends ConsumerState<SellScreen> {
   String? selectedCategory = "Food & Drinks";
   String? selectedCondition = "New";
-  
-  // State variable to store the picked single image
-  File? _pickedImage; 
-  final ImagePicker _picker = ImagePicker();
 
-  // Text editing controllers to hold the user inputs
+  File? _pickedImage;
+  final ImagePicker _picker = ImagePicker();
+  bool _isSaving = false;
+
   final TextEditingController nameController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
@@ -49,17 +50,15 @@ class _SellScreenState extends ConsumerState<SellScreen> {
   @override
   void initState() {
     super.initState();
-    // If we're editing, pre-fill all form fields with existing product values
     if (isEditMode) {
       final p = widget.productToEdit!;
       nameController.text = p['name'] ?? '';
-      
-      // Sanitizes "RM 5.00" back to "5.00" for input editing
+
       String rawPrice = p['price'] ?? '';
       priceController.text = rawPrice.replaceAll('RM ', '').trim();
-      
+
       descriptionController.text = p['description'] ?? '';
-      
+
       if (categories.contains(p['category'])) {
         selectedCategory = p['category'];
       }
@@ -69,9 +68,12 @@ class _SellScreenState extends ConsumerState<SellScreen> {
     }
   }
 
-  // Helper method to open the device gallery and select an image
   Future<void> _pickImageFromGallery() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? image = await _picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1080,
+      imageQuality: 80,
+    );
     if (image != null) {
       setState(() {
         _pickedImage = File(image.path);
@@ -96,6 +98,9 @@ class _SellScreenState extends ConsumerState<SellScreen> {
     final Color deepPurpleTheme = isDarkMode ? const Color(0xFF7B2FF7) : Colors.deepPurple;
     final Color fieldColor = isDarkMode ? const Color(0xFF1E163A) : Colors.white;
 
+    final String? existingImageUrl =
+        isEditMode ? widget.productToEdit!['image'] as String? : null;
+
     return Scaffold(
       backgroundColor: backgroundTint,
       body: SafeArea(
@@ -104,40 +109,29 @@ class _SellScreenState extends ConsumerState<SellScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-             
               // Header
               Row(
                 children: [
                   IconButton(
-<<<<<<< HEAD
-                    onPressed: () => Navigator.pop(context), // Simplified context clean-up back step
-                    icon: const Icon(Icons.arrow_back),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    isEditMode ? "Edit Listing" : "Add Item",
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-=======
                     onPressed: () {
                       Navigator.pushAndRemoveUntil(
                         context,
-                        MaterialPageRoute(builder: (context) => const HomeScreen()), // Replace with your home class name
-                        (route) => false, // This clears the navigation history so they can't "pop" back into the edit screen
+                        MaterialPageRoute(builder: (context) => const HomeScreen()),
+                        (route) => false,
                       );
                     },
                     icon: Icon(Icons.arrow_back, color: textColor),
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    "Add Item",
+                    isEditMode ? "Edit Item" : "Add Item",
                     style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: textColor),
->>>>>>> f28a5c122a510d5eafb351cc5a47785079775c4a
                   ),
                 ],
               ),
               const SizedBox(height: 20),
 
-              // --- SINGLE IMAGE PICKER ROW ---
+              // --- IMAGE PICKER ---
               Text("Product Photo", style: TextStyle(color: deepPurpleTheme, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               GestureDetector(
@@ -150,19 +144,7 @@ class _SellScreenState extends ConsumerState<SellScreen> {
                     border: Border.all(color: deepPurpleTheme, width: 1.5),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: _pickedImage != null
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.file(_pickedImage!, fit: BoxFit.cover),
-                        )
-                      : Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.add_a_photo, color: deepPurpleTheme, size: 30),
-                            const SizedBox(height: 4),
-                            Text("Add Photo", style: TextStyle(fontSize: 12, color: deepPurpleTheme)),
-                          ],
-                        ),
+                  child: _buildImagePreview(existingImageUrl, deepPurpleTheme),
                 ),
               ),
               const SizedBox(height: 20),
@@ -199,7 +181,9 @@ class _SellScreenState extends ConsumerState<SellScreen> {
                     dropdownColor: cardBackground,
                     style: TextStyle(color: textColor),
                     isExpanded: true,
-                    items: categories.map((c) => DropdownMenuItem(value: c, child: Text(c, style: TextStyle(color: textColor)))).toList(),
+                    items: categories
+                        .map((c) => DropdownMenuItem(value: c, child: Text(c, style: TextStyle(color: textColor))))
+                        .toList(),
                     onChanged: (value) => setState(() => selectedCategory = value),
                   ),
                 ),
@@ -222,7 +206,9 @@ class _SellScreenState extends ConsumerState<SellScreen> {
                     dropdownColor: cardBackground,
                     style: TextStyle(color: textColor),
                     isExpanded: true,
-                    items: conditions.map((c) => DropdownMenuItem(value: c, child: Text(c, style: TextStyle(color: textColor)))).toList(),
+                    items: conditions
+                        .map((c) => DropdownMenuItem(value: c, child: Text(c, style: TextStyle(color: textColor))))
+                        .toList(),
                     onChanged: (value) => setState(() => selectedCondition = value),
                   ),
                 ),
@@ -245,6 +231,7 @@ class _SellScreenState extends ConsumerState<SellScreen> {
                 ),
               ),
               const SizedBox(height: 15),
+
               // Description Field
               Text("Description", style: TextStyle(color: deepPurpleTheme, fontWeight: FontWeight.bold)),
               const SizedBox(height: 5),
@@ -262,53 +249,23 @@ class _SellScreenState extends ConsumerState<SellScreen> {
               ),
               const SizedBox(height: 25),
 
-              // Save Changes Button
+              // Save / Publish Button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () async {
-                    if (nameController.text.isEmpty || priceController.text.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Item Name and Price are required!")),
-                      );
-                      return;
-                    }
-
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Uploading listing...")),
-                    );
-                    try {
-                      // Pass inputs along with image data (if selected)
-                      await addProductToFirestore(
-                        name: nameController.text.trim(),
-                        category: selectedCategory ?? "Others",
-                        condition: selectedCondition ?? "New",
-                        price: priceController.text.trim(),
-                        description: descriptionController.text.trim(),
-                        imageFile: _pickedImage,
-                      );
-                      // Clear fields and selected image upon success
-                      nameController.clear();
-                      priceController.clear();
-                      descriptionController.clear();
-                      setState(() {
-                        _pickedImage = null;
-                      });
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Listing published successfully!")),
-                      );
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Error listing product: $e")),
-                      );
-                    }
-                  },
+                  onPressed: _isSaving ? null : _handleSubmit,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: deepPurpleTheme,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 15),
                   ),
-                  child: const Text("Publish Listing"),
+                  child: _isSaving
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        )
+                      : Text(isEditMode ? "Save Changes" : "Publish Listing"),
                 ),
               ),
               const SizedBox(height: 20),
@@ -319,7 +276,106 @@ class _SellScreenState extends ConsumerState<SellScreen> {
     );
   }
 
-  // Local helper method to handle writing data directly to Firestore
+  Widget _buildImagePreview(String? existingImageUrl, Color deepPurpleTheme) {
+    if (_pickedImage != null) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Image.file(_pickedImage!, fit: BoxFit.cover),
+      );
+    }
+    if (existingImageUrl != null && existingImageUrl.startsWith('http')) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Image.network(existingImageUrl, fit: BoxFit.cover),
+      );
+    }
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.add_a_photo, color: deepPurpleTheme, size: 30),
+        const SizedBox(height: 4),
+        Text("Add Photo", style: TextStyle(fontSize: 12, color: deepPurpleTheme)),
+      ],
+    );
+  }
+
+  Future<void> _handleSubmit() async {
+    if (nameController.text.isEmpty || priceController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Item Name and Price are required!")),
+      );
+      return;
+    }
+
+    setState(() => _isSaving = true);
+
+    try {
+      if (isEditMode) {
+        await updateProductInFirestore(
+          docId: widget.productToEdit!['id'],
+          name: nameController.text.trim(),
+          category: selectedCategory ?? "Others",
+          condition: selectedCondition ?? "New",
+          price: priceController.text.trim(),
+          description: descriptionController.text.trim(),
+          imageFile: _pickedImage,
+        );
+      } else {
+        await addProductToFirestore(
+          name: nameController.text.trim(),
+          category: selectedCategory ?? "Others",
+          condition: selectedCondition ?? "New",
+          price: priceController.text.trim(),
+          description: descriptionController.text.trim(),
+          imageFile: _pickedImage,
+        );
+      }
+
+      nameController.clear();
+      priceController.clear();
+      descriptionController.clear();
+      setState(() {
+        _pickedImage = null;
+        _isSaving = false;
+      });
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(isEditMode ? "Listing updated!" : "Listing published successfully!")),
+      );
+
+      if (isEditMode) {
+        Navigator.pop(context);
+      }
+    } catch (e) {
+    setState(() => _isSaving = false);
+    if (!mounted) return;
+    debugPrint('FULL ERROR: $e');  // <-- add this
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Error saving product: $e")),
+    );
+  }
+}
+
+  // Uploads to Cloudinary and returns the hosted image URL
+  Future<String> _uploadImage(File imageFile) async {
+    final url = Uri.parse('https://api.cloudinary.com/v1_1/$kCloudinaryCloudName/image/upload');
+    final request = http.MultipartRequest('POST', url)
+      ..fields['upload_preset'] = kCloudinaryUploadPreset
+      ..files.add(await http.MultipartFile.fromPath('file', imageFile.path));
+
+    final response = await request.send();
+    final resBody = await response.stream.bytesToString();
+
+    if (response.statusCode != 200) {
+      throw Exception('Image upload failed: $resBody');
+    } 
+
+    final data = jsonDecode(resBody);
+    return data['secure_url'] as String;
+  }
+
   Future<void> addProductToFirestore({
     required String name,
     required String category,
@@ -328,32 +384,46 @@ class _SellScreenState extends ConsumerState<SellScreen> {
     required String description,
     File? imageFile,
   }) async {
-    // Grab the current user's ID safely
     final String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
-<<<<<<< HEAD
-  await FirebaseFirestore.instance.collection('products').add({
-    'name': name,
-    'category': category,
-    'condition': condition,
-    'price': 'RM $price',
-    'description': description,
-    'image': 'assets/images/shoes.png', 
-    'createdAt': FieldValue.serverTimestamp(),
-    'sellerId': currentUserId, // <--- Saves who uploaded it, but doesn't restrict home screen visibility!
-  });
-}
-=======
+    String imageUrl = 'assets/images/shoes.png';
+    if (imageFile != null) {
+      imageUrl = await _uploadImage(imageFile);
+    }
+
     await FirebaseFirestore.instance.collection('products').add({
       'name': name,
       'category': category,
       'condition': condition,
       'price': 'RM $price',
       'description': description,
-      'image': 'assets/images/google.png', 
+      'image': imageUrl,
       'createdAt': FieldValue.serverTimestamp(),
-      'sellerId': currentUserId, // <--- Saves who uploaded it, but doesn't restrict home screen visibility!
+      'sellerId': currentUserId,
     });
   }
->>>>>>> f28a5c122a510d5eafb351cc5a47785079775c4a
+
+  Future<void> updateProductInFirestore({
+    required String docId,
+    required String name,
+    required String category,
+    required String condition,
+    required String price,
+    required String description,
+    File? imageFile,
+  }) async {
+    final Map<String, dynamic> updateData = {
+      'name': name,
+      'category': category,
+      'condition': condition,
+      'price': 'RM $price',
+      'description': description,
+    };
+
+    if (imageFile != null) {
+      updateData['image'] = await _uploadImage(imageFile);
+    }
+
+    await FirebaseFirestore.instance.collection('products').doc(docId).update(updateData);
+  }
 }

@@ -4,7 +4,6 @@ import 'package:kerawangshop/user_profile.dart';
 import 'package:kerawangshop/sell_screen.dart';
 import 'home_content.dart';
 import 'item_model.dart';
-import 'cart_screen.dart';
 import 'theme_provider.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -16,11 +15,6 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   int currentTab = 0;
-  final List<Widget> screens = const [
-    HomeContent(),
-    SellScreen(),
-    UserProfilePage(),
-  ];
   static const Color sellColor = Color(0xFFF2C14E);
 
   List<ShopItem> uploadedItems = [];
@@ -36,11 +30,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final isDarkMode = ref.watch(themeProvider);
     final Color dynamicBarColor = isDarkMode ? const Color(0xFF1E163A) : const Color(0xFF7B2FF7);
 
-    final List<Widget> screens = [
+    final List<Widget> screens = const [
       HomeContent(),
       SellScreen(),
       UserProfilePage(),
     ];
+
     return Scaffold(
       body: IndexedStack(
         index: currentTab,
@@ -57,19 +52,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               right: 0,
               bottom: 0,
               child: Container(
-<<<<<<< HEAD
-                height: 75,
-                decoration: const BoxDecoration(
-                  color: barColor,
-                  borderRadius: BorderRadius.vertical(
-=======
                 height: 65,
                 decoration: BoxDecoration(
                   color: dynamicBarColor,
-                  borderRadius: const BorderRadius.vertical(
->>>>>>> f28a5c122a510d5eafb351cc5a47785079775c4a
-                    top: Radius.circular(28),
-                  ),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
                 ),
                 child: SafeArea(
                   top: false,
@@ -77,7 +63,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       _navItem(icon: Icons.home, label: 'Home', index: 0, currentBarColor: dynamicBarColor),
-                      const SizedBox(width: 60), // spacing alignment buffer around floating center anchor
+                      const SizedBox(width: 60),
                       _navItem(icon: Icons.person, label: 'Me', index: 2, currentBarColor: dynamicBarColor),
                     ],
                   ),
@@ -148,16 +134,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            color: isActive ? sellColor : Colors.white,
-          ),
+          Icon(icon, color: isActive ? sellColor : Colors.white),
           const SizedBox(height: 4),
           Text(
             label,
-            style: TextStyle(
-              color: isActive ? sellColor : Colors.white,
-            ),
+            style: TextStyle(color: isActive ? sellColor : Colors.white),
           ),
         ],
       ),
