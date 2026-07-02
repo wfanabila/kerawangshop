@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
 import 'sell_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class MyListingPage extends StatelessWidget {
+class MyListingPage extends StatefulWidget {
   const MyListingPage({super.key});
+
+  @override
+  State<MyListingPage> createState() => _MyListingPageState();
+}
+
+class _MyListingPageState extends State<MyListingPage> {
+  final currentUser = FirebaseAuth.instance.currentUser;
 
   @override
   Widget build(BuildContext context) {

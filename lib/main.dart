@@ -8,11 +8,13 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(); // Initialize Firebase
   runApp(
-    const ProviderScope( // Crucial for Riverpod to work
+    const ProviderScope(
+      // Crucial for Riverpod to work
       child: MyApp(),
     ),
   );
 }
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 

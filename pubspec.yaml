@@ -49,6 +49,7 @@ dependencies:
   cloud_firestore: ^6.5.0
   curved_navigation_bar: ^1.0.6
   image_picker: ^1.1.2
+  firebase_storage: ^13.1.0
 
 dev_dependencies:
   flutter_test:
@@ -87,6 +88,9 @@ flutter:
     - assets/images/ramen.png
     - assets/Lottie/
     - assets/images/pfp1.jpg
+    - assets/images/pelam.jpeg
+    - assets/images/chocojar.jpeg
+
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

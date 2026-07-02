@@ -28,6 +28,7 @@ class SoldItemsPage extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         children: [
           SoldItemCard(
+            imagePath: "assets/images/popia.png",
             productName: "Popia Carbonara",
             buyerName: "Nabila",
             quantity: "x3",
@@ -38,6 +39,7 @@ class SoldItemsPage extends StatelessWidget {
           SizedBox(height: 10),
 
           SoldItemCard(
+            imagePath: "assets/images/mineral.png",
             productName: "Mineral Water 500ml",
             buyerName: "Nabila",
             quantity: "x2",
@@ -48,6 +50,7 @@ class SoldItemsPage extends StatelessWidget {
           SizedBox(height: 10),
 
           SoldItemCard(
+            imagePath: "assets/images/pelam.jpeg",
             productName: "Pelam Lemak",
             buyerName: "Haq",
             quantity: "x1",
@@ -58,6 +61,7 @@ class SoldItemsPage extends StatelessWidget {
           SizedBox(height: 10),
 
           SoldItemCard(
+            imagePath: "assets/images/chocojar.jpeg",
             productName: "Mini Chocojar (29g)",
             buyerName: "Siti",
             quantity: "x1",
@@ -76,6 +80,7 @@ class SoldItemCard extends StatelessWidget {
   final String quantity;
   final String price;
   final String date;
+  final String imagePath;
 
   const SoldItemCard({
     super.key,
@@ -84,6 +89,7 @@ class SoldItemCard extends StatelessWidget {
     required this.quantity,
     required this.price,
     required this.date,
+    required this.imagePath,
   });
 
   @override
@@ -98,14 +104,14 @@ class SoldItemCard extends StatelessWidget {
 
       child: Row(
         children: [
-          Container(
-            width: 70,
-            height: 70,
-            decoration: BoxDecoration(
-              color: Colors.grey.shade300,
-              borderRadius: BorderRadius.circular(10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Image.asset(
+              imagePath,
+              width: 70,
+              height: 70,
+              fit: BoxFit.cover,
             ),
-            child: const Icon(Icons.image, size: 35),
           ),
 
           const SizedBox(width: 12),
