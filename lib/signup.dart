@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'login.dart';
@@ -11,39 +12,52 @@ class Signup extends StatefulWidget {
 }
 
 class _SignupState extends State<Signup> {
-
   bool isHiddenPassword = true;
 
   TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
 
   signup() async {
-  try {
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+        email: email.text.trim(),
+        password: password.text.trim(),
+      );
 
-    await FirebaseAuth.instance
-        .createUserWithEmailAndPassword(
-      email: email.text.trim(),
-      password: password.text.trim(),
-    );
+      User? user = userCredential.user;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Account created successfully"),
-      ),
-    );
+      if (user != null) {
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+          'name': 'New User',                        // default  name
+          'email': email.text.trim(),                // registered Email
+          'phone': '',                               // blank placeholder
+          'pfpPath': 'assets/images/pfp1.jpg',       // default pfp
+        });
+      }
 
-  } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Account created successfully"),
+        ),
+      );
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(e.message ?? "Signup failed"),
-      ),
-    );
+      Get.offAll(() => const Login());
 
-    print(e.code);
-    print(e.message);
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.message ?? "Signup failed"),
+        ),
+      );
+
+      print(e.code);
+      print(e.message);
+    } catch (e) {
+
+      print("Error writing profile data: $e");
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +79,7 @@ class _SignupState extends State<Signup> {
           children: [
             const SizedBox(height: 80),
 
-            // Header
+            // header
             const Padding(
               padding: EdgeInsets.all(20),
               child: Column(
@@ -107,80 +121,77 @@ class _SignupState extends State<Signup> {
                     child: Column(
                       children: [
                         const SizedBox(height: 60),
-                        // Email
+                        // email
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20,),
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: Container(
                             decoration: BoxDecoration(
-                              color: Color(0xFFEDE8FF),
+                              color: const Color(0xFFEDE8FF),
                               border: Border.all(color: const Color(0xFF751BF1)),
                               borderRadius: BorderRadius.circular(12),
                               boxShadow: const [
                                 BoxShadow(
-                                color: Color.fromRGBO(93, 93, 93, 0.251),
-                                blurRadius: 20,
-                                offset: Offset(0, 8),
-                              ),
-                            ],
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
+                                  color: Color.fromRGBO(93, 93, 93, 0.251),
+                                  blurRadius: 20,
+                                  offset: Offset(0, 8),
+                                ),
+                              ],
                             ),
-                            child: TextField(
-                              controller: email,
-                              decoration: const InputDecoration(
-                                hintText: "Email",
-                                border: InputBorder.none,
-                                contentPadding: const EdgeInsets.symmetric(vertical: 15),
-                              ),
-                            ),
-                          ),
-                        ),),
-                        const SizedBox(height: 20),
-                        // Password
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20,),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Color(0xFFEDE8FF),
-                              border: Border.all(color: const Color(0xFF751BF1)),
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: const [
-                                BoxShadow(
-                                color: Color.fromRGBO(93, 93, 93, 0.251),
-                                blurRadius: 20,
-                                offset: Offset(0, 8),
-                              ),
-                            ],
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                            ),
-                            child: TextField(
-                              controller: password,
-                              obscureText: isHiddenPassword,
-                              decoration: InputDecoration(
-                                hintText: "Password",
-                                border: InputBorder.none,
-                                contentPadding: const EdgeInsets.symmetric(vertical: 15),
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    isHiddenPassword 
-                                    ? Icons.visibility 
-                                    : Icons.visibility_off,
-                                  ),
-                                            onPressed: () {
-                                              setState(() {
-                                                isHiddenPassword = !isHiddenPassword;
-                                              });
-                                            },
-                                          ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: TextField(
+                                controller: email,
+                                decoration: const InputDecoration(
+                                  hintText: "Email",
+                                  border: InputBorder.none,
+                                  contentPadding: EdgeInsets.symmetric(vertical: 15),
+                                ),
                               ),
                             ),
                           ),
                         ),
+                        const SizedBox(height: 20),
+                        // password
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFEDE8FF),
+                              border: Border.all(color: const Color(0xFF751BF1)),
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Color.fromRGBO(93, 93, 93, 0.251),
+                                  blurRadius: 20,
+                                  offset: Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: TextField(
+                                controller: password,
+                                obscureText: isHiddenPassword,
+                                decoration: InputDecoration(
+                                  hintText: "Password",
+                                  border: InputBorder.none,
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 15),
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      isHiddenPassword
+                                          ? Icons.visibility
+                                          : Icons.visibility_off,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        isHiddenPassword = !isHiddenPassword;
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                         const SizedBox(height: 20),
                         SizedBox(
@@ -189,13 +200,11 @@ class _SignupState extends State<Signup> {
                           child: ElevatedButton(
                             onPressed: signup,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  const Color(0xFF751BF1),
+                              backgroundColor: const Color(0xFF751BF1),
                               foregroundColor: Colors.white,
                               elevation: 5,
                               shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.circular(50),
+                                borderRadius: BorderRadius.circular(50),
                               ),
                             ),
                             child: const Text(
@@ -211,22 +220,22 @@ class _SignupState extends State<Signup> {
                         Align(
                           alignment: Alignment.center,
                           child: TextButton(
-                          onPressed: () {
-                            Get.to(() => const Login());
-                          },
-                          style: TextButton.styleFrom(
-                            foregroundColor: const Color(0xFF0052DD),
-                            padding: EdgeInsets.zero,
-                          ),
-                          child: const Text(
-                            "Already have an account? Sign In",
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
+                            onPressed: () {
+                              Get.to(() => const Login());
+                            },
+                            style: TextButton.styleFrom(
+                              foregroundColor: const Color(0xFF0052DD),
+                              padding: EdgeInsets.zero,
+                            ),
+                            child: const Text(
+                              "Already have an account? Sign In",
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                              ),
                             ),
                           ),
                         ),
-                      ),
                       ],
                     ),
                   ),

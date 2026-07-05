@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'sell_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'theme_provider.dart';
 
 class MyListingPage extends StatefulWidget {
   const MyListingPage({super.key});
@@ -16,6 +18,8 @@ class _MyListingPageState extends State<MyListingPage> {
   @override
   Widget build(BuildContext context) {
     const Color primaryPurple = Color(0xFF7B2CBF);
+    const Color backgroundTint = Color(0xFFF3EFFA);
+    const Color textColor = Colors.black;
 
     return Scaffold(
       backgroundColor: primaryPurple,
@@ -50,9 +54,9 @@ class _MyListingPageState extends State<MyListingPage> {
               Expanded(
                 child: Container(
                   width: double.infinity,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF3EFFA),
-                    borderRadius: BorderRadius.only(
+                  decoration: BoxDecoration(
+                    color: backgroundTint,
+                    borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(25),
                       topRight: Radius.circular(25),
                     ),
@@ -67,10 +71,19 @@ class _MyListingPageState extends State<MyListingPage> {
                           children: [
                             Text(
                               "Selling",
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: textColor,
+                              ),
                             ),
-                            Text("Likes"),
-                            Text("Saves"),
+                            Text(
+                              "Likes",
+                              style: TextStyle(color: Colors.black87),
+                            ),
+                            Text(
+                              "Saves",
+                              style: TextStyle(color: Colors.black87),
+                            ),
                           ],
                         ),
                       ),
@@ -86,11 +99,12 @@ class _MyListingPageState extends State<MyListingPage> {
 
                       const SizedBox(height: 15),
 
-                      const Text(
+                      Text(
                         "Start selling today !",
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
+                          color: textColor,
                         ),
                       ),
 
@@ -98,7 +112,10 @@ class _MyListingPageState extends State<MyListingPage> {
 
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: primaryPurple,
+                          backgroundColor:
+                              isDarkMode
+                                  ? const Color(0xFF7B2FF7)
+                                  : primaryPurple,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),

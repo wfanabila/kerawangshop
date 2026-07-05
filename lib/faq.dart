@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'theme_provider.dart';
 
-class FAQPage extends StatefulWidget {
+class FAQPage extends ConsumerStatefulWidget {
   const FAQPage({super.key});
 
   @override
-  State<FAQPage> createState() => _FAQPageState();
+  ConsumerState<FAQPage> createState() => _FAQPageState();
 }
 
-class _FAQPageState extends State<FAQPage> {
+class _FAQPageState extends ConsumerState<FAQPage> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-
   final List<Map<String, dynamic>> _allFaqs = [
     {
       'question': 'Where to meet on campus?',
@@ -43,7 +44,6 @@ class _FAQPageState extends State<FAQPage> {
       'highlights': [],
     },
   ];
-
   List<Map<String, dynamic>> get _filteredFaqs {
     if (_searchQuery.isEmpty) return _allFaqs;
     return _allFaqs.where((faq) {
@@ -60,8 +60,13 @@ class _FAQPageState extends State<FAQPage> {
 
   @override
   Widget build(BuildContext context) {
-    const Color primaryPurple = Color(0xFF7B2CBF);
-    const Color backgroundTint = Color(0xFFF3EEFD);
+    final isDarkMode = ref.watch(themeProvider);
+    final Color primaryPurple = isDarkMode ? const Color(0xFF7B2FF7) : const Color(0xFF7B2CBF);
+    final Color backgroundTint = isDarkMode ? const Color(0xFF120A2A) : const Color(0xFFF3EEFD);
+    final Color cardBackground = isDarkMode ? const Color(0xFF221A4A) : Colors.white;
+    final Color textColor = isDarkMode ? Colors.white : const Color(0xFF2D2D2D);
+    final Color subTextColor = isDarkMode ? Colors.white70 : const Color(0xFF555555);
+    final Color fieldColor = isDarkMode ? const Color(0xFF1E163A) : const Color(0xFFF3EEFD);
 
     return Scaffold(
       backgroundColor: backgroundTint,
@@ -69,20 +74,22 @@ class _FAQPageState extends State<FAQPage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: primaryPurple, size: 26),
+          icon: Icon(Icons.arrow_back, color: primaryPurple, size: 26),
           onPressed: () {
             Navigator.pop(context);
           },
-        ),
-        title: const Text(
+   
+      ),
+        title: Text(
           'FAQ',
           style: TextStyle(
-            color: Color(0xFF2D2D2D),
+            color: textColor,
             fontSize: 28,
             fontWeight: FontWeight.bold,
           ),
         ),
-        centerTitle: true,
+       
+  centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -92,100 +99,120 @@ class _FAQPageState extends State<FAQPage> {
             children: [
 
               Container(
+      
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: cardBackground,
                   borderRadius: BorderRadius.circular(16),
-                ),
+                
+),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'How can we help?',
                       style: TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.w900,
-                        color: Color(0xFF2D2D2D),
+                        color: textColor,
+ 
                         height: 1.2,
                       ),
                     ),
                     const SizedBox(height: 6),
-                    const Text(
+            
+                    Text(
                       'Everything you need to know about buying and selling on campus.',
                       style: TextStyle(
                         fontSize: 14,
+           
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF555555),
+                        color: subTextColor,
                         height: 1.4,
                       ),
-                    ),
+              
+       ),
                     const SizedBox(height: 14),
                     // Search bar
                     Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF3EEFD),
+       
+                        color: fieldColor,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: TextField(
+           
                         controller: _searchController,
                         onChanged: (value) => setState(() => _searchQuery = value),
-                        style: const TextStyle(fontSize: 14, color: Color(0xFF2D2D2D)),
+                        style: TextStyle(fontSize: 14, color: textColor),
                         decoration: InputDecoration(
+ 
                           hintText: 'Search for answers...',
-                          hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
-                          prefixIcon: Icon(Icons.search_rounded, color: Colors.grey[400], size: 20),
+                          hintStyle: TextStyle(color: isDarkMode ? Colors.white60 : Colors.grey[400], fontSize: 14),
+                          prefixIcon: Icon(Icons.search_rounded, color: isDarkMode ? Colors.white60 : Colors.grey[400], size: 20),
+           
                           border: InputBorder.none,
                           contentPadding: const EdgeInsets.symmetric(vertical: 13),
                         ),
                       ),
-                    ),
+         
+            ),
                   ],
                 ),
               ),
 
               const SizedBox(height: 25),
               
-              // header section
-              _buildSectionHeader('Frequently Asked Questions'),
+           
+    // header section
+              _buildSectionHeader('Frequently Asked Questions', isDarkMode),
               const SizedBox(height: 10),
 
               if (_filteredFaqs.isEmpty)
                 Center(
                   child: Padding(
+             
                     padding: const EdgeInsets.symmetric(vertical: 30),
                     child: Text(
                       'No results found for "$_searchQuery"',
                       style: TextStyle(color: Colors.grey[500], fontSize: 18),
-                    ),
+                 
+    ),
                   ),
                 )
               else
                 ..._filteredFaqs.map((faq) => _FAQTile(
                       question: faq['question'],
+        
                       answer: faq['answer'],
                       highlights: List<String>.from(faq['highlights']),
                       primaryPurple: primaryPurple,
+                      isDarkMode: isDarkMode,
+                      cardBackground: cardBackground,
+                      textColor: textColor,
+                      subTextColor: subTextColor,
                     )),
 
               const SizedBox(height: 40),
-            ],
+   
+          ],
           ),
         ),
       ),
     );
-  }
+ }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(String title, bool isDarkMode) {
     return Text(
       title,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.bold,
-        color: Color(0xFF3A3A3A),
+        color: isDarkMode ? Colors.white70 : const Color(0xFF3A3A3A),
       ),
     );
-  }
+ }
 }
 
 class _FAQTile extends StatefulWidget {
@@ -193,118 +220,133 @@ class _FAQTile extends StatefulWidget {
   final String answer;
   final List<String> highlights;
   final Color primaryPurple;
-
-  const _FAQTile({
+  final bool isDarkMode;
+  final Color cardBackground;
+  final Color textColor;
+  final Color subTextColor;
+ const _FAQTile({
     required this.question,
     required this.answer,
     required this.highlights,
     required this.primaryPurple,
+    required this.isDarkMode,
+    required this.cardBackground,
+    required this.textColor,
+    required this.subTextColor,
   });
-
-  @override
+ @override
   State<_FAQTile> createState() => _FAQTileState();
 }
 
 class _FAQTileState extends State<_FAQTile> with SingleTickerProviderStateMixin {
   bool _isExpanded = false;
-  late AnimationController _controller;
+ late AnimationController _controller;
   late Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
+ _controller = AnimationController(
       duration: const Duration(milliseconds: 220),
       vsync: this,
     );
-    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
+ _animation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
   }
 
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
-  }
+ }
 
   void _toggle() {
     setState(() {
       _isExpanded = !_isExpanded;
       _isExpanded ? _controller.forward() : _controller.reverse();
     });
-  }
+ }
 
   List<TextSpan> _buildAnswerSpans() {
     if (widget.highlights.isEmpty) {
       return [TextSpan(text: widget.answer)];
-    }
+ }
     List<TextSpan> spans = [];
     String remaining = widget.answer;
-    for (final highlight in widget.highlights) {
+ for (final highlight in widget.highlights) {
       final idx = remaining.indexOf(highlight);
       if (idx == -1) continue;
-      if (idx > 0) spans.add(TextSpan(text: remaining.substring(0, idx)));
+ if (idx > 0) spans.add(TextSpan(text: remaining.substring(0, idx)));
       spans.add(TextSpan(
         text: highlight,
         style: TextStyle(color: widget.primaryPurple, fontWeight: FontWeight.w500),
       ));
-      remaining = remaining.substring(idx + highlight.length);
+ remaining = remaining.substring(idx + highlight.length);
     }
     if (remaining.isNotEmpty) spans.add(TextSpan(text: remaining));
     return spans;
-  }
+ }
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: widget.cardBackground,
         borderRadius: BorderRadius.circular(16),
       ),
       child: InkWell(
         onTap: _toggle,
         borderRadius: BorderRadius.circular(16),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 16, 
+ vertical: 14),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const SizedBox(width: 16),
+              
+     const SizedBox(width: 16),
                   Expanded(
                     child: Text(
                       widget.question,
                       style: TextStyle(
-                        fontWeight: FontWeight.w600,
+          
+                       fontWeight: FontWeight.w600,
                         fontSize: 16,
-                        color: _isExpanded ? widget.primaryPurple : Colors.black87,
+                        color: _isExpanded ?
+ widget.primaryPurple : (widget.isDarkMode ? Colors.white : Colors.black87),
                       ),
                     ),
                   ),
 
                   Icon(
-                    _isExpanded
+                    
+ _isExpanded
                         ? Icons.keyboard_arrow_up
                         : Icons.keyboard_arrow_down,
                     size: 20,
                     color: widget.primaryPurple,
-                  ),
+        
+           ),
                 ],
               ),
               SizeTransition(
                 sizeFactor: _animation,
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 10, left: 44), // indent under icon
+            
+       padding: const EdgeInsets.only(top: 10, left: 44), // indent under icon
                   child: RichText(
                     text: TextSpan(
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF555555),
+                      style: TextStyle(
+                     
+    fontSize: 14,
+                        color: widget.subTextColor,
                         height: 1.5,
                       ),
                       children: _buildAnswerSpans(),
+ 
                     ),
                   ),
                 ),
@@ -312,7 +354,8 @@ class _FAQTileState extends State<_FAQTile> with SingleTickerProviderStateMixin 
             ],
           ),
         ),
-      ),
+   
+    ),
     );
   }
 }

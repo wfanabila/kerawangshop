@@ -28,6 +28,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  http: ^1.2.0
   flutter:
     sdk: flutter
     
@@ -49,7 +50,8 @@ dependencies:
   cloud_firestore: ^6.5.0
   curved_navigation_bar: ^1.0.6
   image_picker: ^1.1.2
-  firebase_storage: ^13.1.0
+  firebase_storage: ^13.4.3
+
 
 dev_dependencies:
   flutter_test:
@@ -88,9 +90,13 @@ flutter:
     - assets/images/ramen.png
     - assets/Lottie/
     - assets/images/pfp1.jpg
+<<<<<<< HEAD
     - assets/images/pelam.jpeg
     - assets/images/chocojar.jpeg
 
+=======
+    - assets/images/fd.png
+>>>>>>> ee2405f0bf5e10413cfcd15f33f2e780e363718b
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
