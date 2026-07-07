@@ -127,6 +127,7 @@ class SoldItemCard extends StatelessWidget {
 
       child: Row(
         children: [
+          // FIX: Added missing closing parentheses and structure
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: Image.asset(
@@ -135,6 +136,7 @@ class SoldItemCard extends StatelessWidget {
               height: 70,
               fit: BoxFit.cover,
             ),
+          ),
           
 
           const SizedBox(width: 12),
