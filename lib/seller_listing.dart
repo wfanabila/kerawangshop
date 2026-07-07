@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'sell_screen.dart';
 
 class SellerListingPage extends StatefulWidget {
   const SellerListingPage({super.key});
@@ -70,7 +71,21 @@ class _SellerListingPageState extends State<SellerListingPage> {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.edit, color: Colors.blue),
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (_) => SellScreen(
+                                    productToEdit: {
+                                      ...(product.data()
+                                          as Map<String, dynamic>),
+                                      'id': product.id,
+                                    },
+                                  ),
+                            ),
+                          );
+                        },
                       ),
                       IconButton(
                         icon: const Icon(Icons.delete, color: Colors.red),

@@ -90,13 +90,10 @@ flutter:
     - assets/images/ramen.png
     - assets/Lottie/
     - assets/images/pfp1.jpg
-<<<<<<< HEAD
     - assets/images/pelam.jpeg
     - assets/images/chocojar.jpeg
 
-=======
     - assets/images/fd.png
->>>>>>> ee2405f0bf5e10413cfcd15f33f2e780e363718b
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

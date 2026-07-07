@@ -35,6 +35,7 @@ class _SellScreenState extends ConsumerState<SellScreen> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController quantityController = TextEditingController();
 
   final List<String> categories = [
     "Stationary",
@@ -60,6 +61,7 @@ class _SellScreenState extends ConsumerState<SellScreen> {
       priceController.text = rawPrice.replaceAll('RM ', '').trim();
 
       descriptionController.text = p['description'] ?? '';
+      quantityController.text = (p['quantity'] ?? 1).toString();
 
       if (categories.contains(p['category'])) {
         selectedCategory = p['category'];
@@ -127,10 +129,6 @@ class _SellScreenState extends ConsumerState<SellScreen> {
                         ), // Replace with your home class name
                         (route) =>
                             false, // This clears the navigation history so they can't "pop" back into the edit screen
-                        MaterialPageRoute(
-                          builder: (context) => const HomeScreen(),
-                        ),
-                        (route) => false,
                       );
                     },
                     icon: Icon(Icons.arrow_back, color: textColor),
@@ -321,6 +319,32 @@ class _SellScreenState extends ConsumerState<SellScreen> {
               ),
               const SizedBox(height: 15),
 
+              Text(
+                "Stock",
+                style: TextStyle(
+                  color: deepPurpleTheme,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 5),
+
+              TextField(
+                controller: quantityController,
+                keyboardType: TextInputType.number,
+                style: TextStyle(color: textColor),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: fieldColor,
+                  hintText: "10",
+                  hintStyle: const TextStyle(color: Colors.grey),
+                  border: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 15),
+
               // Description Field
               Text(
                 "Description",
@@ -366,20 +390,34 @@ class _SellScreenState extends ConsumerState<SellScreen> {
                     );
 
                     try {
-                      // Pass inputs along with image data (if selected)
-                      await addProductToFirestore(
-                        name: nameController.text.trim(),
-                        category: selectedCategory ?? "Others",
-                        condition: selectedCondition ?? "New",
-                        price: priceController.text.trim(),
-                        description: descriptionController.text.trim(),
-                        imageFile: _pickedImage,
-                      );
+                      if (isEditMode) {
+                        await updateProductInFirestore(
+                          docId: widget.productToEdit!['id'],
+                          name: nameController.text.trim(),
+                          category: selectedCategory ?? "Others",
+                          condition: selectedCondition ?? "New",
+                          price: priceController.text.trim(),
+                          description: descriptionController.text.trim(),
+                          quantity: int.tryParse(quantityController.text) ?? 1,
+                          imageFile: _pickedImage,
+                        );
+                      } else {
+                        await addProductToFirestore(
+                          name: nameController.text.trim(),
+                          category: selectedCategory ?? "Others",
+                          condition: selectedCondition ?? "New",
+                          price: priceController.text.trim(),
+                          description: descriptionController.text.trim(),
+                          quantity: int.tryParse(quantityController.text) ?? 1,
+                          imageFile: _pickedImage,
+                        );
+                      }
 
-                      // Clear fields and selected image upon success
                       nameController.clear();
                       priceController.clear();
                       descriptionController.clear();
+                      quantityController.clear();
+
                       setState(() {
                         _pickedImage = null;
                       });
@@ -401,7 +439,7 @@ class _SellScreenState extends ConsumerState<SellScreen> {
                       );
                     }
                   },
-                  onPressed: _isSaving ? null : _handleSubmit,
+
                   style: ElevatedButton.styleFrom(
                     backgroundColor: deepPurpleTheme,
                     foregroundColor: Colors.white,
@@ -475,6 +513,7 @@ class _SellScreenState extends ConsumerState<SellScreen> {
           condition: selectedCondition ?? "New",
           price: priceController.text.trim(),
           description: descriptionController.text.trim(),
+          quantity: int.tryParse(quantityController.text) ?? 1,
           imageFile: _pickedImage,
         );
       } else {
@@ -484,6 +523,7 @@ class _SellScreenState extends ConsumerState<SellScreen> {
           condition: selectedCondition ?? "New",
           price: priceController.text.trim(),
           description: descriptionController.text.trim(),
+          quantity: int.tryParse(quantityController.text) ?? 1,
           imageFile: _pickedImage,
         );
       }
@@ -548,6 +588,7 @@ class _SellScreenState extends ConsumerState<SellScreen> {
     required String condition,
     required String price,
     required String description,
+    required int quantity,
     File? imageFile,
   }) async {
     final String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
@@ -564,6 +605,7 @@ class _SellScreenState extends ConsumerState<SellScreen> {
       'price': 'RM $price',
       'description': description,
       'image': imageUrl,
+      'quantity': quantity,
       'createdAt': FieldValue.serverTimestamp(),
       'sellerId': currentUserId,
     });
@@ -576,6 +618,7 @@ class _SellScreenState extends ConsumerState<SellScreen> {
     required String condition,
     required String price,
     required String description,
+    required int quantity,
     File? imageFile,
   }) async {
     final Map<String, dynamic> updateData = {
@@ -584,6 +627,7 @@ class _SellScreenState extends ConsumerState<SellScreen> {
       'condition': condition,
       'price': 'RM $price',
       'description': description,
+      'quantity': quantity,
     };
 
     if (imageFile != null) {
